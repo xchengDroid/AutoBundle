@@ -116,7 +116,7 @@ class BundleSet {
                 .addParameter(BUNDLE, "bundle");
 
         //methodBuilder.addCode("\n");
-       // methodBuilder.addStatement(";;");
+        // methodBuilder.addStatement(";;");
         if (!isFinal && parentBinding == null) {
             methodBuilder.addAnnotation(CALL_SUPER);
         }
@@ -202,7 +202,7 @@ class BundleSet {
                 .add("target.$L = ", bundleBinding.name)
                 .add("bundle.");
         builder.add(getMethodName + "($S," + getDefaultValue(bundleBinding) + ")", bundleBinding.key);
-        //这样子会换行 哈哈
+        //这样子会换行 自动加 结束符;哈哈
         methodBuilder.addStatement("$L", builder.build());
     }
 
