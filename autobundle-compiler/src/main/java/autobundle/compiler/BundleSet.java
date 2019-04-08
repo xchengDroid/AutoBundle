@@ -183,7 +183,7 @@ class BundleSet {
             } else if (bundleBinding.annotationClass == ParcelableValue.class) {
                 addCompositeStatement(methodBuilder, bundleBinding, "getParcelable");
             } else if (bundleBinding.annotationClass == SerializableValue.class) {
-                methodBuilder.addStatement("target.$L =($T) bundle.getSerializable($S);", bundleBinding.name, bundleBinding.type, bundleBinding.key);
+                methodBuilder.addStatement("target.$L =($T) bundle.getSerializable($S)", bundleBinding.name, bundleBinding.type, bundleBinding.key);
                 if (bundleBinding.required) {
                     methodBuilder.beginControlFlow("if (target." + bundleBinding.name + " == null)");
                     methodBuilder.addStatement(
@@ -201,13 +201,13 @@ class BundleSet {
         CodeBlock.Builder builder = CodeBlock.builder()
                 .add("target.$L = ", bundleBinding.name)
                 .add("bundle.");
-        builder.add(getMethodName + "($S," + getDefaultValue(bundleBinding) + ");", bundleBinding.key);
+        builder.add(getMethodName + "($S," + getDefaultValue(bundleBinding) + ")", bundleBinding.key);
         //这样子会换行 哈哈
         methodBuilder.addStatement("$L", builder.build());
     }
 
     private void addCompositeStatement(MethodSpec.Builder methodBuilder, FieldBundleBinding bundleBinding, String getMethodName) {
-        methodBuilder.addStatement("target.$L = bundle.$L($S);", bundleBinding.name, getMethodName, bundleBinding.key);
+        methodBuilder.addStatement("target.$L = bundle.$L($S)", bundleBinding.name, getMethodName, bundleBinding.key);
         if (bundleBinding.required) {
             methodBuilder.beginControlFlow("if (target." + bundleBinding.name + " == null)");
             methodBuilder.addStatement(
