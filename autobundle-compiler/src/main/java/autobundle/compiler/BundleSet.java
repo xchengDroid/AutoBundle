@@ -115,8 +115,6 @@ class BundleSet {
                 .addParameter(TypeName.OBJECT, "object")
                 .addParameter(BUNDLE, "bundle");
 
-        //methodBuilder.addCode("\n");
-        // methodBuilder.addStatement(";;");
         if (!isFinal && parentBinding == null) {
             methodBuilder.addAnnotation(CALL_SUPER);
         }
@@ -124,7 +122,7 @@ class BundleSet {
             methodBuilder.addStatement("super.bind(object, bundle)");
         }
         methodBuilder.addStatement("$T target = ($T)object", targetTypeName, targetTypeName);
-
+        methodBuilder.addCode("\n");
 
         for (FieldBundleBinding bundleBinding : bundleBindings) {
 
