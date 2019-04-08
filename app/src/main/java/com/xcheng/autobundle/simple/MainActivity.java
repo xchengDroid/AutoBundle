@@ -113,7 +113,7 @@ public class MainActivity extends TopActivity {
     Bundle _ParcelableValue;
 
     @SerializableValue("_SerializableValue")
-    HashMap _SerializableValue;
+    HashMap<String,Short> _SerializableValue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -55,8 +55,8 @@ import static javax.lang.model.element.Modifier.PUBLIC;
  * 编写人： chengxin
  * 功能描述：
  */
-public class BundleSet {
-    public static final String METHOD_BIND = "bind";
+class BundleSet {
+    private final String METHOD_BIND = "bind";
     private static final ClassName BUNDLE = ClassName.get("android.os", "Bundle");
     private static final ClassName NULLPOINTEREXCEPTION = ClassName.get("java.lang", "NullPointerException");
 
@@ -67,7 +67,6 @@ public class BundleSet {
     private static final ClassName SUPPRESS_LINT =
             ClassName.get("android.annotation", "SuppressLint");
     private static final ClassName IBINDER = ClassName.get("autobundle", "IBinder");
-    private static final ClassName VIEW = ClassName.get("android.view", "View");
 
     private final TypeName targetTypeName;
     private final ClassName bindingClassName;
@@ -76,11 +75,11 @@ public class BundleSet {
     BundleSet parentBinding;
     private boolean isFinal;
 
-    BundleSet(TypeName targetTypeName,
-              ClassName bindingClassName,
-              boolean isFinal,
-              ImmutableList<FieldBundleBinding> bundleBindings,
-              @Nullable BundleSet parentBinding) {
+    private BundleSet(TypeName targetTypeName,
+                      ClassName bindingClassName,
+                      boolean isFinal,
+                      ImmutableList<FieldBundleBinding> bundleBindings,
+                      @Nullable BundleSet parentBinding) {
         this.targetTypeName = targetTypeName;
         this.bindingClassName = bindingClassName;
         this.bundleBindings = bundleBindings;
@@ -89,14 +88,14 @@ public class BundleSet {
     }
 
 
-    JavaFile brewJava(int sdk, boolean debuggable) {
-        TypeSpec bindingConfiguration = createType(sdk, debuggable);
+    JavaFile brewJava() {
+        TypeSpec bindingConfiguration = createType();
         return JavaFile.builder(bindingClassName.packageName(), bindingConfiguration)
                 .addFileComment("Generated code from AutoBundle. Do not modify!")
                 .build();
     }
 
-    private TypeSpec createType(int sdk, boolean debuggable) {
+    private TypeSpec createType() {
         TypeSpec.Builder result = TypeSpec.classBuilder(bindingClassName.simpleName())
                 .addModifiers(PUBLIC);
         if (isFinal) {
@@ -115,6 +114,12 @@ public class BundleSet {
                 .addModifiers(PUBLIC)
                 .addParameter(TypeName.OBJECT, "object")
                 .addParameter(BUNDLE, "bundle");
+
+        //methodBuilder.addCode("\n");
+       // methodBuilder.addStatement(";;");
+        if (!isFinal && parentBinding == null) {
+            methodBuilder.addAnnotation(CALL_SUPER);
+        }
         if (parentBinding != null) {
             methodBuilder.addStatement("super.bind(object, bundle)");
         }
@@ -178,8 +183,13 @@ public class BundleSet {
             } else if (bundleBinding.annotationClass == ParcelableValue.class) {
                 addCompositeStatement(methodBuilder, bundleBinding, "getParcelable");
             } else if (bundleBinding.annotationClass == SerializableValue.class) {
-                //format = "getIntArray($S);";
-
+                methodBuilder.addStatement("target.$L =($T) bundle.getSerializable($S);", bundleBinding.name, bundleBinding.type, bundleBinding.key);
+                if (bundleBinding.required) {
+                    methodBuilder.beginControlFlow("if (target." + bundleBinding.name + " == null)");
+                    methodBuilder.addStatement(
+                            "throw new $T(\"The field '" + bundleBinding.name + "' is null, in class '\" + $T.class.getName() + \"!\")", NULLPOINTEREXCEPTION, targetTypeName);
+                    methodBuilder.endControlFlow();
+                }
             }
         }
         result.addMethod(methodBuilder.build());

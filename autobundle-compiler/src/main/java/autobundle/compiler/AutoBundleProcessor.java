@@ -122,12 +122,10 @@ public class AutoBundleProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         Map<TypeElement, BundleSet> bindingMap = findAndParseTargets(roundEnv);
-        note("开始构建");
         for (Map.Entry<TypeElement, BundleSet> entry : bindingMap.entrySet()) {
             TypeElement typeElement = entry.getKey();
             BundleSet binding = entry.getValue();
-            JavaFile javaFile = binding.brewJava(0, true);
-            note(typeElement, "结束构建");
+            JavaFile javaFile = binding.brewJava();
             try {
                 javaFile.writeTo(filer);
             } catch (IOException e) {
