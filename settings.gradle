@@ -1,0 +1,1 @@
+include ':app', ':autobundle-api',':autobundle-compiler',':autobundle-annotation'
