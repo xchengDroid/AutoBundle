@@ -1,8 +1,10 @@
 package autobundle.compiler;
 
 import com.google.auto.service.AutoService;
+import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeName;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
@@ -120,15 +122,17 @@ public class AutoBundleProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         Map<TypeElement, BundleSet> bindingMap = findAndParseTargets(roundEnv);
+        note("开始构建");
         for (Map.Entry<TypeElement, BundleSet> entry : bindingMap.entrySet()) {
-//            TypeElement typeElement = entry.getKey();
-//            BundleSet binding = entry.getValue();
-//            JavaFile javaFile = binding.brewJava(sdk, debuggable);
-//            try {
-//                javaFile.writeTo(filer);
-//            } catch (IOException e) {
-//                error(typeElement, "Unable to write binding for type %s: %s", typeElement, e.getMessage());
-//            }
+            TypeElement typeElement = entry.getKey();
+            BundleSet binding = entry.getValue();
+            JavaFile javaFile = binding.brewJava(0, true);
+            note(typeElement, "结束构建");
+            try {
+                javaFile.writeTo(filer);
+            } catch (IOException e) {
+                error(typeElement, "Unable to write binding for type %s: %s", typeElement, e.getMessage());
+            }
         }
 
         return false;
@@ -210,7 +214,7 @@ public class AutoBundleProcessor extends AbstractProcessor {
         }
         String name = simpleName.toString();
         TypeName type = TypeName.get(elementType);
-        builder.addField(value, new FieldBundleBinding(name, value, type, required));
+        builder.addField(value, new FieldBundleBinding(name, annotationClass, value, type, required));
         // Add the type-erased version to the valid binding targets set.
         erasedTargetNames.add(enclosingElement);
     }

@@ -4,29 +4,24 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 
+import java.lang.annotation.Annotation;
+
 final class FieldBundleBinding {
     //属性名称
-    private final String name;
+    final String name;
     //属性类型
-    private final TypeName type;
-    private final boolean required;
+    final TypeName type;
+    final boolean required;
     //对应的key值
-    private final String key;
+    final String key;
+    final Class<? extends Annotation> annotationClass;
 
-    FieldBundleBinding(String name, String key, TypeName type, boolean required) {
+    FieldBundleBinding(String name, Class<? extends Annotation> annotationClass, String key, TypeName type, boolean required) {
         this.name = name;
         this.type = type;
         this.required = required;
         this.key = key;
-    }
-
-
-    public String getName() {
-        return name;
-    }
-
-    public TypeName getType() {
-        return type;
+        this.annotationClass = annotationClass;
     }
 
     public ClassName getRawType() {
@@ -40,7 +35,5 @@ final class FieldBundleBinding {
         return "field '" + name + "'";
     }
 
-    public boolean isRequired() {
-        return required;
-    }
+
 }
