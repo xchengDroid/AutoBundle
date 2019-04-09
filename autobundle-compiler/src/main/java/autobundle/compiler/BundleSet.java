@@ -209,7 +209,11 @@ class BundleSet {
         if (bundleBinding.required) {
             methodBuilder.beginControlFlow("if (target." + bundleBinding.name + " == null)");
             methodBuilder.addStatement(
-                    "throw new $T(\"The field '" + bundleBinding.name + "' is null, in class '\" + $T.class.getName() + \"!\")", NULLPOINTEREXCEPTION, targetTypeName);
+                    "throw new $T(\"Required the field '$L'"
+                            + " with key '$L'"
+                            + " is null, in class '\" + $T.class.getName() + \"' ."
+                            + " If this field is optional remove '@Required' annotation.\") ",
+                    NULLPOINTEREXCEPTION, bundleBinding.name, bundleBinding.key, targetTypeName);
             methodBuilder.endControlFlow();
         }
     }

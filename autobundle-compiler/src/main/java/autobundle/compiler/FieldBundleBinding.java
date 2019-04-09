@@ -11,6 +11,7 @@ final class FieldBundleBinding {
     final String name;
     //属性类型
     final TypeName type;
+    //是否必须  对复合数据类型有效
     final boolean required;
     //对应的key值
     final String key;
@@ -34,6 +35,5 @@ final class FieldBundleBinding {
     public String getDescription() {
         return "field '" + name + "'";
     }
-
 
 }

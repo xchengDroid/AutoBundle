@@ -25,7 +25,6 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
@@ -58,6 +57,7 @@ import autobundle.annotation.LongValue;
 import autobundle.annotation.ParcelableArrayListValue;
 import autobundle.annotation.ParcelableArrayValue;
 import autobundle.annotation.ParcelableValue;
+import autobundle.annotation.Required;
 import autobundle.annotation.SerializableValue;
 import autobundle.annotation.ShortArrayValue;
 import autobundle.annotation.ShortValue;
@@ -107,7 +107,6 @@ public class AutoBundleProcessor extends AbstractProcessor {
             StringArrayValue.class,
             StringValue.class
     );
-    private static final String NULLABLE_ANNOTATION_NAME = "Nullable";
     private Types typeUtils;
     private Filer filer;
 
@@ -195,8 +194,7 @@ public class AutoBundleProcessor extends AbstractProcessor {
         Annotation annotation = element.getAnnotation(annotationClass);
         Method annotationValue = annotationClass.getDeclaredMethod("value");
         String value = (String) annotationValue.invoke(annotation);
-        boolean required = isFieldRequired(element);
-        note(element, "name:" + simpleName + " value:" + value + " required:" + required);
+        boolean required = element.getAnnotation(Required.class) != null;
         BundleSet.Builder builder = builderMap.get(enclosingElement);
         if (builder != null) {
             FieldBundleBinding existingBindingName = builder.findExistingBinding(value);
@@ -233,20 +231,6 @@ public class AutoBundleProcessor extends AbstractProcessor {
                 return typeElement;
             }
         }
-    }
-
-    private static boolean isFieldRequired(Element element) {
-        return !hasAnnotationWithName(element, NULLABLE_ANNOTATION_NAME);
-    }
-
-    private static boolean hasAnnotationWithName(Element element, String simpleName) {
-        for (AnnotationMirror mirror : element.getAnnotationMirrors()) {
-            String annotationName = mirror.getAnnotationType().asElement().getSimpleName().toString();
-            if (simpleName.equals(annotationName)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private boolean isInaccessibleViaGeneratedCode(Class<? extends Annotation> annotationClass,
