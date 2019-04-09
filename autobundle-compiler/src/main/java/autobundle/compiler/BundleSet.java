@@ -249,7 +249,10 @@ class BundleSet {
 
         private @Nullable
         BundleSet parentBinding;
-        private final Map<String, FieldBundleBinding> viewIdMap = new LinkedHashMap<>();
+        //对应bundle里的key不能重复，避免不同field的key重复
+        private final Map<String, FieldBundleBinding> valueFieldMap = new LinkedHashMap<>();
+        //对应field 的名字不能重复，避免有多个注解
+        private final Map<String, FieldBundleBinding> nameFieldMap = new LinkedHashMap<>();
 
         private Builder(TypeName targetTypeName, ClassName bindingClassName, boolean isFinal) {
             this.targetTypeName = targetTypeName;
@@ -257,8 +260,9 @@ class BundleSet {
             this.isFinal = isFinal;
         }
 
-        void addField(String name, FieldBundleBinding binding) {
-            viewIdMap.put(name, binding);
+        void addField(FieldBundleBinding binding) {
+            valueFieldMap.put(binding.key, binding);
+            nameFieldMap.put(binding.name, binding);
         }
 
         void setParent(BundleSet parent) {
@@ -266,13 +270,18 @@ class BundleSet {
         }
 
         @Nullable
-        FieldBundleBinding findExistingBinding(String name) {
-            return viewIdMap.get(name);
+        FieldBundleBinding findExistingBindingByValue(String value) {
+            return valueFieldMap.get(value);
+        }
+
+        @Nullable
+        FieldBundleBinding findExistingBindingByName(String name) {
+            return nameFieldMap.get(name);
         }
 
         BundleSet build() {
             ImmutableList.Builder<FieldBundleBinding> viewBindings = ImmutableList.builder();
-            for (FieldBundleBinding builder : viewIdMap.values()) {
+            for (FieldBundleBinding builder : valueFieldMap.values()) {
                 viewBindings.add(builder);
             }
             return new BundleSet(targetTypeName, bindingClassName, isFinal, viewBindings.build(), parentBinding);

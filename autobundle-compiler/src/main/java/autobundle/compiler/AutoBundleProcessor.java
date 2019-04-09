@@ -189,27 +189,36 @@ public class AutoBundleProcessor extends AbstractProcessor {
         if (hasError)
             return;
         Name simpleName = element.getSimpleName();
+        String name = simpleName.toString();
         // Assemble information on the field.
         Annotation annotation = element.getAnnotation(annotationClass);
         Method annotationValue = annotationClass.getDeclaredMethod("value");
+        // Bundle -> key
         String value = (String) annotationValue.invoke(annotation);
         boolean required = element.getAnnotation(Required.class) != null;
         BundleSet.Builder builder = builderMap.get(enclosingElement);
         if (builder != null) {
-            FieldBundleBinding existingBindingName = builder.findExistingBinding(value);
-            if (existingBindingName != null) {
+            FieldBundleBinding existingBinding = builder.findExistingBindingByValue(value);
+            if (existingBinding != null) {
                 error(element, "Attempt to use @%s for an already bound value %s on '%s'. (%s.%s)",
-                        annotationClass.getSimpleName(), value, existingBindingName,
+                        annotationClass.getSimpleName(), value, existingBinding.name,
                         enclosingElement.getQualifiedName(), element.getSimpleName());
+                return;
+            }
+            existingBinding = builder.findExistingBindingByName(name);
+            if (existingBinding != null) {
+                error(element, "Attempt to use @%s for an already bound annotation @%s on '%s.%s'",
+                        annotationClass.getSimpleName(), existingBinding.annotationClass.getSimpleName(),
+                        enclosingElement.getQualifiedName(), existingBinding.name);
                 return;
             }
         } else {
             builder = BundleSet.newBuilder(enclosingElement);
             builderMap.put(enclosingElement, builder);
         }
-        String name = simpleName.toString();
+
         TypeName type = TypeName.get(elementType);
-        builder.addField(value, new FieldBundleBinding(name, annotationClass, value, type, required));
+        builder.addField(new FieldBundleBinding(name, annotationClass, value, type, required));
         // Add the type-erased version to the valid binding targets set.
         erasedTargetNames.add(enclosingElement);
     }
