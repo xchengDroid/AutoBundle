@@ -35,14 +35,15 @@ public class AutoBundle {
 
     @UiThread
     public static void bind(@NonNull Activity target) {
-        bind(target, target.getIntent().getExtras());
-    }
-
-    @UiThread
-    public static void bind(@NonNull Object target, Bundle bundle) {
+        Bundle bundle = target.getIntent().getExtras();
         if (bundle == null) {
             throw new NullPointerException("bundle==null");
         }
+        bind(target, bundle);
+    }
+
+    @UiThread
+    public static void bind(@NonNull Object target, @NonNull Bundle bundle) {
         Class<?> targetClass = target.getClass();
         if (debug) Log.d(TAG, "Looking up binding for " + targetClass.getName());
 
