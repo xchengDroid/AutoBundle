@@ -35,7 +35,6 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic.Kind;
 
-import autobundle.annotation.BindBundle;
 import autobundle.annotation.BooleanArrayValue;
 import autobundle.annotation.BooleanValue;
 import autobundle.annotation.ByteArrayValue;
@@ -288,7 +287,9 @@ public class AutoBundleProcessor extends AbstractProcessor {
     @Override
     public Set<String> getSupportedAnnotationTypes() {
         Set<String> types = new LinkedHashSet<>();
-        types.add(BindBundle.class.getCanonicalName());
+        for (Class<? extends Annotation> annotationClass : ANNOTATIONS) {
+            types.add(annotationClass.getCanonicalName());
+        }
         return types;
     }
 
