@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import autobundle.AutoBundle;
 import autobundle.annotation.BooleanArrayValue;
 import autobundle.annotation.BooleanValue;
 import autobundle.annotation.ByteArrayValue;
@@ -121,7 +122,8 @@ public class MainActivity extends TopActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        new MainActivity_BundleBinding().bind(this, new Bundle());
+        AutoBundle.setDebug(true);
+        AutoBundle.bind(this,new Bundle());
     }
 
     public static void main(String[] args) {
