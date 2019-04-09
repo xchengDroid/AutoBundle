@@ -23,6 +23,4 @@ public @interface BindBundle {
 
     String name() default "";
 
-    boolean required() default false;
-
 }

@@ -21,8 +21,6 @@ public @interface SerializableValue {
      */
     String value();
 
-    String name() default "";
-
     /**
      * Description of the field
      */

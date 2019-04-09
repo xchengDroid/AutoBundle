@@ -10,7 +10,7 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
  * Bind a field to the view for the specified ID. The view will automatically be cast to the field
  * type.
  * <pre><code>
- * {@literal @}BindData TextView title;
+ * {@literal @}BindData char[] xxx;
  * </code></pre>
  */
 @Retention(CLASS)
