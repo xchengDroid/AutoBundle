@@ -2,7 +2,6 @@ package com.xcheng.autobundle.simple;
 
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
 import android.util.SparseArray;
 
 import java.util.ArrayList;
@@ -30,6 +29,7 @@ import autobundle.annotation.LongValue;
 import autobundle.annotation.ParcelableArrayListValue;
 import autobundle.annotation.ParcelableArrayValue;
 import autobundle.annotation.ParcelableValue;
+import autobundle.annotation.Required;
 import autobundle.annotation.SerializableValue;
 import autobundle.annotation.ShortArrayValue;
 import autobundle.annotation.ShortValue;
@@ -50,6 +50,7 @@ public class MainActivity extends TopActivity {
     byte _byte;
     @CharValue("_char")
     char _char;
+
     @LongValue("_long")
     long _long;
     @DoubleValue("_double")
@@ -65,8 +66,7 @@ public class MainActivity extends TopActivity {
 
     @IntArrayValue("_IntArrayValue")
     int[] _IntArrayValue;
-    @Nullable
-    @BooleanArrayValue("_BooleanArrayValue")
+    @BooleanArrayValue(value = "_BooleanArrayValue")
     boolean[] _BooleanArrayValue;
     @CharArrayValue("_CharArrayValue")
     char[] _CharArrayValue;
@@ -109,18 +109,19 @@ public class MainActivity extends TopActivity {
     @StringArrayListValue("_StringArrayListValue")
     ArrayList<String> _StringArrayListValue;
 
+    @Required
     @ParcelableValue("_ParcelableValue")
     Bundle _ParcelableValue;
 
+    @Required
     @SerializableValue("_SerializableValue")
-    HashMap<String,Short> _SerializableValue;
+    HashMap<String, Short> _SerializableValue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
+        new MainActivity_BundleBinding().bind(this, new Bundle());
     }
 
     public static void main(String[] args) {
