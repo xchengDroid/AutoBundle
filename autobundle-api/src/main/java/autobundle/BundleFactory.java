@@ -222,17 +222,30 @@ final class BundleFactory {
 
             // 复合数据类型数组
             else if (annotation instanceof ParcelableArrayValue) {
+                // Parcelable[] value
                 checkParameterType(annotation, type, Parcelable[].class, p);
                 return new ParameterHandler.IntParameterHandler(((ParcelableArrayValue) annotation).value(), required);
             } else if (annotation instanceof CharSequenceArrayValue) {
+                // CharSequence[] value
                 checkParameterType(annotation, type, CharSequence[].class, p);
                 return new ParameterHandler.IntParameterHandler(((CharSequenceArrayValue) annotation).value(), required);
             } else if (annotation instanceof StringArrayValue) {
+                //String[] value
                 checkParameterType(annotation, type, String[].class, p);
                 return new ParameterHandler.IntParameterHandler(((StringArrayValue) annotation).value(), required);
             } else if (annotation instanceof SparseParcelableArrayValue) {
                 //SparseArray<? extends Parcelable>
                 checkParameterType(annotation, type, SparseArray.class, p);
+                Class<?> rawParameterType = Utils.getRawType(type);
+                if (!(type instanceof ParameterizedType)) {
+                    arrayListTypeError(rawParameterType, Parcelable.class, p);
+                }
+                ParameterizedType parameterizedType = (ParameterizedType) type;
+                Class<?> listItemClass = Utils.getRawType(Utils.getParameterUpperBound(0, parameterizedType));
+                //只要任意实现Parcelable接口的子类都可以
+                if (!Parcelable.class.isAssignableFrom(listItemClass)) {
+                    arrayListTypeError(rawParameterType, Parcelable.class, p);
+                }
                 return new ParameterHandler.IntParameterHandler(((SparseParcelableArrayValue) annotation).value(), required);
             }
             //列表类型ArrayList
@@ -272,7 +285,7 @@ final class BundleFactory {
                 ParameterizedType parameterizedType = (ParameterizedType) type;
                 Class<?> listItemClass = Utils.getRawType(Utils.getParameterUpperBound(0, parameterizedType));
                 //只要任意实现Parcelable接口的子类都可以
-                if (Parcelable.class.isAssignableFrom(listItemClass)) {
+                if (!Parcelable.class.isAssignableFrom(listItemClass)) {
                     arrayListTypeError(rawParameterType, Parcelable.class, p);
                 }
                 return new ParameterHandler.IntParameterHandler(((ParcelableArrayListValue) annotation).value(), required);
@@ -290,8 +303,7 @@ final class BundleFactory {
                 }
                 return new ParameterHandler.IntParameterHandler(((StringArrayListValue) annotation).value(), required);
             }
-
-
+            
             // 复合数据类型
             else if (annotation instanceof StringValue) {
                 checkParameterType(annotation, type, String.class, p);

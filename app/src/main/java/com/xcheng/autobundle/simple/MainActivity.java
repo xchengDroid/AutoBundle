@@ -2,7 +2,9 @@ package com.xcheng.autobundle.simple;
 
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
 import android.util.SparseArray;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +32,6 @@ import autobundle.annotation.LongValue;
 import autobundle.annotation.ParcelableArrayListValue;
 import autobundle.annotation.ParcelableArrayValue;
 import autobundle.annotation.ParcelableValue;
-import autobundle.annotation.Required;
 import autobundle.annotation.SerializableValue;
 import autobundle.annotation.ShortArrayValue;
 import autobundle.annotation.ShortValue;
@@ -40,7 +41,8 @@ import autobundle.annotation.StringArrayValue;
 import autobundle.annotation.StringValue;
 
 public class MainActivity extends TopActivity {
-
+    //    @IntValue("_integer")
+//    int _integer;
     @IntValue("_int")
     int _int;
     @BooleanValue("_bool")
@@ -110,11 +112,10 @@ public class MainActivity extends TopActivity {
     @StringArrayListValue("_StringArrayListValue")
     ArrayList<String> _StringArrayListValue;
 
-    @Required
     @ParcelableValue("_ParcelableValue")
     Bundle _ParcelableValue;
 
-    @Required
+    //@Required
     @SerializableValue("_SerializableValue")
     HashMap<String, Short> _SerializableValue;
 
@@ -123,10 +124,33 @@ public class MainActivity extends TopActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         AutoBundle.setDebug(true);
-        AutoBundle.bind(this,new Bundle());
+        AutoBundle.bind(this, new Bundle());
+
+        Bundle bundle = new Bundle();
+        ArrayList<? extends Bundle> values = new ArrayList<>();
+        bundle.putParcelableArrayList("1212", values);
+        String[] strings = new String[10];
+        bundle.putCharSequenceArray("1232", strings);
+        objectArray(strings);
+
+        ArrayList<String> charsqs = new ArrayList<>();
+
+        //bundle.putCharSequenceArrayList("chars",charsqs);
+
+       // bundle.putParcelableArrayList("", new ArrayList<MyList>());
     }
 
-    public static void main(String[] args) {
+    public void objectArray(CharSequence[] array) {
+
+    }
+
+    public void objectList(List<? extends ArrayList<List<? extends ArrayList<SerializableValue>>>> array) {
+
+    }
+
+    public void invoke(View view) {
+        Bundle loginBundle = AutoBundle.create(BundleService.class).charSequenceArray(new MyList<Bundle>());
+        Log.e("print", loginBundle.toString());
     }
 
 }

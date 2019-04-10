@@ -1,6 +1,7 @@
 package autobundle;
 
 import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
@@ -10,7 +11,10 @@ import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -102,4 +106,27 @@ public class AutoBundle {
         return bindingCtor;
     }
 
+    @SuppressWarnings("unchecked") // Single-interface proxy creation guarded by parameter safety.
+    public static <T> T create(final Class<T> service) {
+        Utils.validateServiceInterface(service);
+//        if (validateEagerly) {
+//            eagerlyValidateMethods(service);
+//        }
+        return (T) Proxy.newProxyInstance(service.getClassLoader(), new Class<?>[]{service},
+                new InvocationHandler() {
+                    private final Object[] emptyArgs = new Object[0];
+
+                    @Override
+                    public Object invoke(Object proxy, Method method, @Nullable Object[] args) throws Throwable {
+                        // If the method is a method from Object then defer to normal invocation.
+                        if (method.getDeclaringClass() == Object.class) {
+                            return method.invoke(this, args);
+                        }
+                        if (Build.VERSION.SDK_INT >= 24 && method.isDefault()) {
+                            throw new UnsupportedOperationException();
+                        }
+                        return BundleFactory.loadBundleFactory(method).invoke(args != null ? args : emptyArgs);
+                    }
+                });
+    }
 }

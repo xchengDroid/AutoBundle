@@ -7,9 +7,12 @@
     tools:context=".MainActivity">
 
     <TextView
+        android:onClick="invoke"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
+        android:text="call invoke!"
+        android:textSize="30sp"
+        android:textColor="@android:color/holo_green_dark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
