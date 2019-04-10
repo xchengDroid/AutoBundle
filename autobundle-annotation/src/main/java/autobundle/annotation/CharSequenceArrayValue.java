@@ -4,17 +4,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.RetentionPolicy.CLASS;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Bind a field to the view for the specified ID. The view will automatically be cast to the field
+ * Bind a field  for the specified value. The field will automatically be cast to the field
  * type.
- * <pre><code>
- * {@literal @}BindData TextView title;
- * </code></pre>
  */
-@Retention(CLASS)
-@Target(FIELD)
+@Retention(RUNTIME)
+@Target({PARAMETER, FIELD})
 public @interface CharSequenceArrayValue {
     /**
      * field bundle key
