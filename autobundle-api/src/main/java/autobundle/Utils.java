@@ -87,6 +87,26 @@ public class Utils {
         // No instances.
     }
 
+    static <T> T checkNotNull(@Nullable T object, String message) {
+        if (object == null) {
+            throw new NullPointerException(message);
+        }
+        return object;
+    }
+
+    static <T> T checkRequiredValue(String key, @Nullable T object, boolean required) {
+        if (required && object == null) {
+            throw new NullPointerException("key with " + key + " is null, If this parameter is optional remove '@Required' annotation. ");
+        }
+        return object;
+    }
+
+    static void checkState(final boolean expression, String message) {
+        if (!expression) {
+            throw new IllegalStateException(message);
+        }
+    }
+
     static RuntimeException methodError(Method method, String message, Object... args) {
         return methodError(method, null, message, args);
     }
@@ -101,16 +121,16 @@ public class Utils {
                 + method.getName(), cause);
     }
 
-    static RuntimeException parameterError(Method method,
-                                           Throwable cause, int p, String message, Object... args) {
+    public static RuntimeException parameterError(Method method,
+                                                  Throwable cause, int p, String message, Object... args) {
         return methodError(method, cause, message + " (parameter #" + (p + 1) + ")", args);
     }
 
-    static RuntimeException parameterError(Method method, int p, String message, Object... args) {
+    public static RuntimeException parameterError(Method method, int p, String message, Object... args) {
         return methodError(method, message + " (parameter #" + (p + 1) + ")", args);
     }
 
-    static Class<?> getRawType(Type type) {
+    public static Class<?> getRawType(Type type) {
         checkNotNull(type, "type == null");
 
         if (type instanceof Class<?>) {
@@ -243,7 +263,7 @@ public class Utils {
      *
      * @param supertype a superclass of, or interface implemented by, this.
      */
-    static Type getSupertype(Type context, Class<?> contextRawType, Class<?> supertype) {
+    public static Type getSupertype(Type context, Class<?> contextRawType, Class<?> supertype) {
         if (!supertype.isAssignableFrom(contextRawType)) throw new IllegalArgumentException();
         return resolve(context, contextRawType,
                 getGenericSupertype(context, contextRawType, supertype));
@@ -350,12 +370,6 @@ public class Utils {
         }
     }
 
-    static <T> T checkNotNull(@Nullable T object, String message) {
-        if (object == null) {
-            throw new NullPointerException(message);
-        }
-        return object;
-    }
 
     /**
      * Returns true if {@code annotations} contains an instance of {@code cls}.
@@ -382,7 +396,7 @@ public class Utils {
         }
     }
 
-    static Type getParameterUpperBound(int index, ParameterizedType type) {
+    public static Type getParameterUpperBound(int index, ParameterizedType type) {
         Type[] types = type.getActualTypeArguments();
         if (index < 0 || index >= types.length) {
             throw new IllegalArgumentException(
