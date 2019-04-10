@@ -249,9 +249,9 @@ class BundleSet {
 
         private @Nullable
         BundleSet parentBinding;
-        //对应bundle里的key不能重复，避免不同field的key重复
+        //对应某个类中注解的value不能重复
         private final Map<String, FieldBundleBinding> valueFieldMap = new LinkedHashMap<>();
-        //对应field 的名字不能重复，避免有多个注解
+        //对应某个类中field不能有多个注解
         private final Map<String, FieldBundleBinding> nameFieldMap = new LinkedHashMap<>();
 
         private Builder(TypeName targetTypeName, ClassName bindingClassName, boolean isFinal) {
