@@ -18,6 +18,7 @@ package autobundle;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -28,6 +29,7 @@ import autobundle.annotation.BooleanValue;
 import autobundle.annotation.CharSequenceValue;
 import autobundle.annotation.IntValue;
 import autobundle.annotation.Required;
+import autobundle.annotation.SerializableValue;
 import autobundle.annotation.StringValue;
 
 import static autobundle.Utils.parameterError;
@@ -49,7 +51,7 @@ final class BundleFactory {
         return result;
     }
 
-    static BundleFactory parseAnnotations(Method method) {
+    private static BundleFactory parseAnnotations(Method method) {
         Type returnType = method.getGenericReturnType();
         if (returnType != Bundle.class) {
             throw Utils.methodError(method, "Service methods must return Bundle.");
@@ -57,15 +59,13 @@ final class BundleFactory {
         return new Builder(method).build();
     }
 
-    private final Method method;
     private final ParameterHandler<?>[] parameterHandlers;
 
-    private BundleFactory(Builder builder) {
-        method = builder.method;
-        parameterHandlers = builder.parameterHandlers;
+    private BundleFactory(ParameterHandler<?>[] parameterHandlers) {
+        this.parameterHandlers = parameterHandlers;
     }
 
-    Bundle create(Object[] args) {
+    Bundle invoke(Object[] args) {
         @SuppressWarnings("unchecked") // It is an error to invoke a method with the wrong arg types.
                 ParameterHandler<Object>[] handlers = (ParameterHandler<Object>[]) parameterHandlers;
         int argumentCount = args.length;
@@ -105,7 +105,7 @@ final class BundleFactory {
             for (int p = 0; p < parameterCount; p++) {
                 parameterHandlers[p] = parseParameter(p, parameterTypes[p], parameterAnnotationsArray[p]);
             }
-            return new BundleFactory(this);
+            return new BundleFactory(parameterHandlers);
         }
 
         private ParameterHandler<?> parseParameter(
@@ -139,31 +139,32 @@ final class BundleFactory {
         private ParameterHandler<?> parseParameterAnnotation(
                 int p, Type type, Annotation annotation, boolean required) {
             if (annotation instanceof IntValue) {
-                if (type != int.class) {
-                    throw parameterError(method, p,
-                            "@IntValue must be int type.");
-                }
+                checkParameterType(annotation, type, int.class, p);
                 return new ParameterHandler.IntParameterHandler(((IntValue) annotation).value(), required);
             } else if (annotation instanceof BooleanValue) {
-                if (type != boolean.class) {
-                    throw parameterError(method, p,
-                            "@BooleanValue must be boolean type.");
-                }
+                checkParameterType(annotation, type, boolean.class, p);
                 return new ParameterHandler.IntParameterHandler(((BooleanValue) annotation).value(), required);
             } else if (annotation instanceof StringValue) {
-                if (type != String.class) {
-                    throw parameterError(method, p,
-                            "@StringValue must be String type.");
-                }
+                checkParameterType(annotation, type, String.class, p);
                 return new ParameterHandler.IntParameterHandler(((StringValue) annotation).value(), required);
             } else if (annotation instanceof CharSequenceValue) {
-                if (type != CharSequenceValue.class) {
-                    throw parameterError(method, p,
-                            "@CharSequenceValue must be CharSequence type.");
-                }
+                checkParameterType(annotation, type, CharSequence.class, p);
                 return new ParameterHandler.IntParameterHandler(((CharSequenceValue) annotation).value(), required);
+            } else if (annotation instanceof SerializableValue) {
+                checkParameterType(annotation, type, Serializable.class, p);
+                return new ParameterHandler.IntParameterHandler(((SerializableValue) annotation).value(), required);
             }
             return null;
+        }
+
+
+        private void checkParameterType(Annotation annotation, Type type, Class<?> rightClass, int p) {
+            Class<?> rawType = Utils.getRawType(type);
+            if (!rightClass.isAssignableFrom(rawType)) {
+                // annotation.getClass -->Proxy 动态代理
+                throw parameterError(method, p,
+                        "@" + annotation.annotationType().getSimpleName() + " must be " + rawType.getSimpleName() + " type.");
+            }
         }
 
         private static boolean required(@Nullable Annotation[] annotations) {
