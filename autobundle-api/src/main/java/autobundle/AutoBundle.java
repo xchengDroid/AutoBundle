@@ -27,29 +27,24 @@ import java.util.Map;
  */
 
 public class AutoBundle {
-
     private static final String TAG = "AutoBundle";
-    private static volatile AutoBundle defaultInstance;
+    private static volatile AutoBundle instance;
     @VisibleForTesting
     final Map<Class<?>, Constructor<? extends IBinder>> BINDINGS = new LinkedHashMap<>();
     final boolean validateEagerly;
     final boolean debug;
     @NonNull
-    final List<OnBundledListener> listeners;
+    final List<OnBundleListener> listeners;
 
-    public static AutoBundle getDefault() {
-        if (defaultInstance == null) {
+    public static AutoBundle getInstance() {
+        if (instance == null) {
             synchronized (AutoBundle.class) {
-                if (defaultInstance == null) {
-                    defaultInstance = new AutoBundle();
+                if (instance == null) {
+                    instance = new AutoBundle(new Builder());
                 }
             }
         }
-        return defaultInstance;
-    }
-
-    private AutoBundle() {
-        this(new Builder());
+        return instance;
     }
 
     private AutoBundle(Builder builder) {
@@ -61,7 +56,6 @@ public class AutoBundle {
     public static Builder builder() {
         return new Builder();
     }
-
 
     @UiThread
     public void bind(@NonNull Activity target) {
@@ -167,13 +161,12 @@ public class AutoBundle {
     public static final class Builder {
         boolean validateEagerly;
         boolean debug;
-        List<OnBundledListener> listeners;
+        List<OnBundleListener> listeners;
 
         private Builder() {
-            //noinspection unchecked
-            listeners = Collections.EMPTY_LIST;
             validateEagerly = false;
             debug = false;
+            //noinspection unchecked
         }
 
         public Builder debug() {
@@ -186,7 +179,7 @@ public class AutoBundle {
             return this;
         }
 
-        public Builder addListener(OnBundledListener listener) {
+        public Builder addListener(OnBundleListener listener) {
             if (listeners == Collections.EMPTY_LIST) {
                 listeners = new ArrayList<>();
             }
@@ -194,15 +187,29 @@ public class AutoBundle {
             return this;
         }
 
-        public AutoBundle installDefault() {
+        public AutoBundle install() {
             synchronized (AutoBundle.class) {
-                if (defaultInstance != null) {
+                if (instance != null) {
                     throw new IllegalStateException("Default instance already exists." +
                             " It may be only set once before it's used the first time to ensure consistent behavior.");
                 }
-                defaultInstance = new AutoBundle(this);
-                return defaultInstance;
+                instance = new AutoBundle(this);
+                return instance;
             }
+        }
+
+        /**
+         * Builds an AutoBundle based on the current configuration.
+         */
+        private AutoBundle build() {
+            List<OnBundleListener> listeners = this.listeners;
+            if (listeners == null) {
+                //noinspection unchecked
+                this.listeners = Collections.EMPTY_LIST;
+            } else {
+                this.listeners = Collections.unmodifiableList(new ArrayList<>(listeners));
+            }
+            return new AutoBundle(this);
         }
     }
 }

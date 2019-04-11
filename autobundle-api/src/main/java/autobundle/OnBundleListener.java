@@ -8,7 +8,7 @@ import android.support.annotation.NonNull;
  * 编写人： chengxin
  * 功能描述：
  */
-public interface OnBundledListener {
+public interface OnBundleListener {
 
     void onBundling();
 
