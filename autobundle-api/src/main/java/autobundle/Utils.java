@@ -13,37 +13,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.Arrays;
-import java.util.List;
 import java.util.NoSuchElementException;
-
-import autobundle.annotation.BooleanArrayValue;
-import autobundle.annotation.BooleanValue;
-import autobundle.annotation.ByteArrayValue;
-import autobundle.annotation.ByteValue;
-import autobundle.annotation.CharArrayValue;
-import autobundle.annotation.CharSequenceArrayListValue;
-import autobundle.annotation.CharSequenceArrayValue;
-import autobundle.annotation.CharSequenceValue;
-import autobundle.annotation.CharValue;
-import autobundle.annotation.DoubleArrayValue;
-import autobundle.annotation.DoubleValue;
-import autobundle.annotation.FloatArrayValue;
-import autobundle.annotation.FloatValue;
-import autobundle.annotation.IntArrayValue;
-import autobundle.annotation.IntValue;
-import autobundle.annotation.IntegerArrayListValue;
-import autobundle.annotation.LongArrayValue;
-import autobundle.annotation.LongValue;
-import autobundle.annotation.ParcelableArrayListValue;
-import autobundle.annotation.ParcelableArrayValue;
-import autobundle.annotation.ParcelableValue;
-import autobundle.annotation.SerializableValue;
-import autobundle.annotation.ShortArrayValue;
-import autobundle.annotation.ShortValue;
-import autobundle.annotation.SparseParcelableArrayValue;
-import autobundle.annotation.StringArrayListValue;
-import autobundle.annotation.StringArrayValue;
-import autobundle.annotation.StringValue;
 
 /**
  * 创建时间：2019/4/9
@@ -51,36 +21,6 @@ import autobundle.annotation.StringValue;
  * 功能描述：
  */
 public class Utils {
-    public static final List<Class<? extends Annotation>> ANNOTATIONS = Arrays.asList(//
-            BooleanArrayValue.class,
-            BooleanValue.class,
-            ByteArrayValue.class,
-            ByteValue.class,
-            CharArrayValue.class,
-            CharSequenceArrayListValue.class,
-            CharSequenceArrayValue.class,
-            CharSequenceValue.class,
-            CharValue.class,
-            DoubleArrayValue.class,
-            DoubleValue.class,
-            FloatArrayValue.class,
-            FloatValue.class,
-            IntArrayValue.class,
-            IntegerArrayListValue.class,
-            IntValue.class,
-            LongArrayValue.class,
-            LongValue.class,
-            ParcelableArrayListValue.class,
-            ParcelableArrayValue.class,
-            ParcelableValue.class,
-            SerializableValue.class,
-            ShortArrayValue.class,
-            ShortValue.class,
-            SparseParcelableArrayValue.class,
-            StringArrayListValue.class,
-            StringArrayValue.class,
-            StringValue.class
-    );
 
     static final Type[] EMPTY_TYPE_ARRAY = new Type[0];
 
@@ -122,12 +62,12 @@ public class Utils {
                 + method.getName(), cause);
     }
 
-    public static RuntimeException parameterError(Method method,
-                                                  Throwable cause, int p, String message, Object... args) {
+    static RuntimeException parameterError(Method method,
+                                           Throwable cause, int p, String message, Object... args) {
         return methodError(method, cause, message + " (parameter #" + (p + 1) + ")", args);
     }
 
-    public static RuntimeException parameterError(Method method, int p, String message, Object... args) {
+    static RuntimeException parameterError(Method method, int p, String message, Object... args) {
         return methodError(method, message + " (parameter #" + (p + 1) + ")", args);
     }
 
@@ -138,7 +78,7 @@ public class Utils {
         return method.isDefault();
     }
 
-    public static Class<?> getRawType(Type type) {
+    static Class<?> getRawType(Type type) {
         checkNotNull(type, "type == null");
 
         if (type instanceof Class<?>) {
@@ -384,9 +324,9 @@ public class Utils {
      */
     static boolean isAnnotationPresent(Annotation[] annotations,
                                        Class<? extends Annotation> cls) {
-        for (Annotation annotation : annotations) {
-            if (cls.isInstance(annotation)) {
-                return true;
+            for (Annotation annotation : annotations) {
+                if (cls.isInstance(annotation)) {
+                    return true;
             }
         }
         return false;
@@ -442,14 +382,6 @@ public class Utils {
         String className = type == null ? "null" : type.getClass().getName();
         throw new IllegalArgumentException("Expected a Class, ParameterizedType, or "
                 + "GenericArrayType, but <" + type + "> is of type " + className);
-    }
-
-    static Type getCallResponseType(Type returnType) {
-        if (!(returnType instanceof ParameterizedType)) {
-            throw new IllegalArgumentException(
-                    "Call return type must be parameterized as Call<Foo> or Call<? extends Foo>");
-        }
-        return getParameterUpperBound(0, (ParameterizedType) returnType);
     }
 
     private static final class ParameterizedTypeImpl implements ParameterizedType {
@@ -596,18 +528,6 @@ public class Utils {
             if (lowerBound != null) return "? super " + typeToString(lowerBound);
             if (upperBound == Object.class) return "?";
             return "? extends " + typeToString(upperBound);
-        }
-    }
-
-    // https://github.com/ReactiveX/RxJava/blob/6a44e5d0543a48f1c378dc833a155f3f71333bc2/
-    // src/main/java/io/reactivex/exceptions/Exceptions.java#L66
-    static void throwIfFatal(Throwable t) {
-        if (t instanceof VirtualMachineError) {
-            throw (VirtualMachineError) t;
-        } else if (t instanceof ThreadDeath) {
-            throw (ThreadDeath) t;
-        } else if (t instanceof LinkageError) {
-            throw (LinkageError) t;
         }
     }
 }
