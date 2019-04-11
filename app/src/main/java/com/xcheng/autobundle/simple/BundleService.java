@@ -26,28 +26,32 @@ import autobundle.annotation.StringValue;
  * 功能描述：
  */
 public interface BundleService {
+    @BundleFlag(0)
+    Bundle getLogin(@Required @StringValue("loginName") String loginName,
+                    @Required @StringValue("password") String password);
+
     @BundleFlag(1)
-    Bundle intBundle(@IntValue("_int") int value);
+    Bundle getInt(@IntValue("_int") int value);
 
     @BundleFlag(2)
-    Bundle stringBundle(@StringValue("_String") String value);
+    Bundle getString(@StringValue("_String") String value);
 
     @BundleFlag(3)
-    Bundle intArrayBundle(@IntArrayValue("_intArray") int[] value);
+    Bundle getIntArray(@IntArrayValue("_intArray") int[] value);
 
-    Bundle stringArrayBundle(@StringArrayValue("_StringArray") String[] value);
+    Bundle getStringArray(@StringArrayValue("_StringArray") String[] value);
 
-    Bundle parcelableArrayBundle(@ParcelableArrayValue("_ParcelableArray") Parcelable[] value);
+    Bundle getParcelableArray(@ParcelableArrayValue("_ParcelableArray") Parcelable[] value);
 
-    Bundle sparseParcelableArrayBundle(@Required @SparseParcelableArrayValue("_SparseParcelableArray")
-                                               SparseArray<? extends Parcelable> value);
+    Bundle getSparseParcelableArray(@Required @SparseParcelableArrayValue("_SparseParcelableArray")
+                                            SparseArray<? extends Parcelable> value);
 
-    Bundle stringArrayListBundle(@Required @StringArrayListValue("_StringArrayListValue") ArrayList<String> value);
+    Bundle getStringArrayList(@Required @StringArrayListValue("_StringArrayListValue") ArrayList<String> value);
 
-    Bundle parcelableArrayListBundle(@ParcelableArrayListValue("_ParcelableArrayList") ArrayList<? extends Parcelable> value);
+    Bundle getParcelableArrayList(@ParcelableArrayListValue("_ParcelableArrayList") ArrayList<? extends Parcelable> value);
 
-    Bundle parcelableBundle(@ParcelableValue("_ParcelableArrayList") Parcelable value);
+    Bundle getParcelable(@ParcelableValue("_ParcelableArrayList") Parcelable value);
 
-    Bundle parcelableBundle(@SerializableValue("_SerializableValue") Serializable value);
+    Bundle getSerializable(@SerializableValue("_SerializableValue") Serializable value);
 
 }

@@ -149,7 +149,7 @@ public class MainActivity extends TopActivity {
 
         Bundle loginBundle = AutoBundle.getInstance()
                 .create(BundleService.class)
-                .sparseParcelableArrayBundle(new SparseArray<MyList<String>>());
+                .getSparseParcelableArray(new SparseArray<MyList<String>>());
 
         Log.e("print", loginBundle.toString());
     }
