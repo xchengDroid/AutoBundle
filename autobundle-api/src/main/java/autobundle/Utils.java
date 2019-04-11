@@ -1,5 +1,6 @@
 package autobundle;
 
+import android.os.Build;
 import android.support.annotation.Nullable;
 
 import java.lang.annotation.Annotation;
@@ -128,6 +129,13 @@ public class Utils {
 
     public static RuntimeException parameterError(Method method, int p, String message, Object... args) {
         return methodError(method, message + " (parameter #" + (p + 1) + ")", args);
+    }
+
+    static boolean isDefaultMethod(Method method) {
+        if (Build.VERSION.SDK_INT < 24) {
+            return false;
+        }
+        return method.isDefault();
     }
 
     public static Class<?> getRawType(Type type) {
