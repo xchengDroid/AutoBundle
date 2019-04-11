@@ -47,10 +47,19 @@ public class AutoBundle {
         return instance;
     }
 
+    /**
+     * Builds an AutoBundle based on the current configuration.
+     */
     private AutoBundle(Builder builder) {
         this.validateEagerly = builder.validateEagerly;
         this.debug = builder.debug;
-        this.listeners = builder.listeners;
+        List<OnBundleListener> listeners = builder.listeners;
+        if (listeners == null) {
+            //noinspection unchecked
+            this.listeners = Collections.EMPTY_LIST;
+        } else {
+            this.listeners = Collections.unmodifiableList(new ArrayList<>(listeners));
+        }
     }
 
     public static Builder builder() {
@@ -169,18 +178,25 @@ public class AutoBundle {
             //noinspection unchecked
         }
 
-        public Builder debug() {
-            debug = true;
+        /**
+         * Control whether debug logging is enabled.
+         */
+        public Builder debug(boolean debug) {
+            this.debug = debug;
             return this;
         }
 
-        public Builder validateEagerly() {
-            validateEagerly = true;
+        /**
+         * When calling {@link #create} on the resulting {@link AutoBundle} instance, eagerly validate
+         * the configuration of all methods in the supplied interface.
+         */
+        public Builder validateEagerly(boolean validateEagerly) {
+            this.validateEagerly = validateEagerly;
             return this;
         }
 
         public Builder addListener(OnBundleListener listener) {
-            if (listeners == Collections.EMPTY_LIST) {
+            if (listeners == null) {
                 listeners = new ArrayList<>();
             }
             listeners.add(listener);
@@ -196,20 +212,6 @@ public class AutoBundle {
                 instance = new AutoBundle(this);
                 return instance;
             }
-        }
-
-        /**
-         * Builds an AutoBundle based on the current configuration.
-         */
-        private AutoBundle build() {
-            List<OnBundleListener> listeners = this.listeners;
-            if (listeners == null) {
-                //noinspection unchecked
-                this.listeners = Collections.EMPTY_LIST;
-            } else {
-                this.listeners = Collections.unmodifiableList(new ArrayList<>(listeners));
-            }
-            return new AutoBundle(this);
         }
     }
 }
