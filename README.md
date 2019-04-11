@@ -45,7 +45,7 @@ if add  this annotation, callback of create Method will get a flag
 
 #### 2.  create AutoBundle Instance
 
-```
+```java
  
  AutoBundle.builder().debug(true)//allow print debug message
                 //check all create method before use
@@ -169,7 +169,7 @@ public class MyActivity extends Activity {
 
 #### how to bind fields from bundle
 
-```
+```java
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -222,7 +222,7 @@ public interface BundleService {
 
 ```java
 //second step: you can crate Bundle like retrofit
-   Bundle loginBundle = AutoBundle.getInstance()
+  Bundle loginBundle = AutoBundle.getInstance()
                 .create(BundleService.class)
                 .getLogin("JackWharton","123456");
 
