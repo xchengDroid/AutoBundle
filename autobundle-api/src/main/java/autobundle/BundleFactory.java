@@ -93,8 +93,10 @@ final class BundleFactory {
     }
 
     private final ParameterHandler<?>[] parameterHandlers;
+    private final Method method;
 
-    private BundleFactory(ParameterHandler<?>[] parameterHandlers) {
+    private BundleFactory(Method method, ParameterHandler<?>[] parameterHandlers) {
+        this.method = method;
         this.parameterHandlers = parameterHandlers;
     }
 
@@ -109,6 +111,15 @@ final class BundleFactory {
         Bundle bundle = new Bundle();
         for (int p = 0; p < argumentCount; p++) {
             handlers[p].apply(bundle, args[p]);
+            if (AutoBundle.getInstance().debug) {
+                Log.d(AutoBundle.TAG, "Bundling key: " + handlers[p].key + ", value: " + args[p] + ", required: " + handlers[p].required
+                        + " \n in parameter #" + (p + 1)
+                        + " for method "
+                        + method.getDeclaringClass().getSimpleName()
+                        + "."
+                        + method.getName()
+                );
+            }
         }
         return bundle;
     }
@@ -138,7 +149,7 @@ final class BundleFactory {
             for (int p = 0; p < parameterCount; p++) {
                 parameterHandlers[p] = parseParameter(p, parameterTypes[p], parameterAnnotationsArray[p]);
             }
-            return new BundleFactory(parameterHandlers);
+            return new BundleFactory(method, parameterHandlers);
         }
 
         private ParameterHandler<?> parseParameter(
@@ -174,7 +185,8 @@ final class BundleFactory {
             Class<? extends Annotation> annotationClass = annotation.annotationType();
 
             if (AutoBundle.getInstance().debug) {
-                Log.d(AutoBundle.TAG, "Parse " + annotation + " \nin parameter #" + (p + 1)
+                Log.d(AutoBundle.TAG, "Parse " + annotation + " ,required:" + required
+                        + " \n in parameter #" + (p + 1)
                         + " for method "
                         + method.getDeclaringClass().getSimpleName()
                         + "."
