@@ -1,2 +1,2 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.xcheng.autobundle.autobundle_api" />
+<!--至少需要包名 ARouter ButterKnife-->
+<manifest package="autobundle" />
