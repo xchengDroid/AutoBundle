@@ -78,17 +78,17 @@ import static javax.lang.model.element.Modifier.STATIC;
 @AutoService(Processor.class)
 public class AutoBundleProcessor extends AbstractProcessor {
     private static final List<Class<? extends Annotation>> ANNOTATIONS = Arrays.asList(//
-            BooleanArrayValue.class, //
-            BooleanValue.class, //
-            ByteArrayValue.class, //
-            ByteValue.class, //
-            CharArrayValue.class, //
-            CharSequenceArrayListValue.class, //
-            CharSequenceArrayValue.class, //
-            CharSequenceValue.class, //
-            CharValue.class, //
-            DoubleArrayValue.class, //
-            DoubleValue.class, //
+            BooleanArrayValue.class,
+            BooleanValue.class,
+            ByteArrayValue.class,
+            ByteValue.class,
+            CharArrayValue.class,
+            CharSequenceArrayListValue.class,
+            CharSequenceArrayValue.class,
+            CharSequenceValue.class,
+            CharValue.class,
+            DoubleArrayValue.class,
+            DoubleValue.class,
             FloatArrayValue.class,
             FloatValue.class,
             IntArrayValue.class,
