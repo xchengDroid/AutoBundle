@@ -145,7 +145,7 @@ final class BundleFactory {
         final Annotation[][] parameterAnnotationsArray;
         final Type[] parameterTypes;
         ParameterHandler<?>[] parameterHandlers;
-        int bundleFlag = -1;// by default
+        int bundleFlag = Integer.MIN_VALUE;// by default
 
         Builder(Method method) {
             this.method = method;
