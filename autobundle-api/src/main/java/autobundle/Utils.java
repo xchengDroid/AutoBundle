@@ -324,9 +324,9 @@ public class Utils {
      */
     static boolean isAnnotationPresent(Annotation[] annotations,
                                        Class<? extends Annotation> cls) {
-            for (Annotation annotation : annotations) {
-                if (cls.isInstance(annotation)) {
-                    return true;
+        for (Annotation annotation : annotations) {
+            if (cls.isInstance(annotation)) {
+                return true;
             }
         }
         return false;
