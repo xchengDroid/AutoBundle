@@ -61,6 +61,11 @@ import autobundle.annotation.StringValue;
 
 import static autobundle.Utils.parameterError;
 
+/**
+ * 创建时间：2019/4/11
+ * 编写人： chengxin
+ * 功能描述：create bundle by interface method
+ */
 final class BundleFactory {
 
     private static final Map<Method, BundleFactory> bundleFactoryCache = new ConcurrentHashMap<>();

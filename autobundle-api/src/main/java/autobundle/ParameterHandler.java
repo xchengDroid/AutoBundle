@@ -38,6 +38,11 @@ import autobundle.annotation.StringArrayListValue;
 import autobundle.annotation.StringArrayValue;
 import autobundle.annotation.StringValue;
 
+/**
+ * 创建时间：2019/4/11
+ * 编写人： chengxin
+ * 功能描述：called bundle.putXXX method
+ */
 abstract class ParameterHandler<T> {
     final String key;
     //Primitive type wont be check!
