@@ -2,6 +2,7 @@ package autobundle;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * 创建时间：2019/4/11
@@ -10,7 +11,10 @@ import android.support.annotation.NonNull;
  */
 public interface OnBundleListener {
 
-    void onBundling();
+    void onBundling(int flag, String key, @Nullable Object value, boolean required);
 
-    void onCompleted(@NonNull Bundle bundle);
+    /**
+     * you can replace or add any key value in bundle
+     */
+    void onCompleted(int flag, @NonNull Bundle bundle);
 }

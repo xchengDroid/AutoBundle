@@ -123,9 +123,6 @@ public class MainActivity extends TopActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        AutoBundle.setDebug(true);
-        AutoBundle.bind(this, new Bundle());
-
         Bundle bundle = new Bundle();
         ArrayList<? extends Bundle> values = new ArrayList<>();
         bundle.putParcelableArrayList("1212", values);
@@ -136,7 +133,7 @@ public class MainActivity extends TopActivity {
 //        ArrayList<String> stringList = new ArrayList<>();
 //        bundle.putCharSequenceArrayList("strings",stringList);
 
-       // bundle.putParcelableArrayList("", new ArrayList<MyList>());
+        // bundle.putParcelableArrayList("", new ArrayList<MyList>());
     }
 
     public void objectArray(CharSequence[] array) {
@@ -148,7 +145,9 @@ public class MainActivity extends TopActivity {
     }
 
     public void invoke(View view) {
-        Bundle loginBundle = AutoBundle.create(BundleService.class).charSequenceArray(null);
+        Bundle loginBundle = AutoBundle.getInstance()
+                .create(BundleService.class)
+                .charSequenceArray(null);
         Log.e("print", loginBundle.toString());
     }
 

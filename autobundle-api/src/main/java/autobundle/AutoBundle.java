@@ -27,7 +27,7 @@ import java.util.Map;
  */
 
 public class AutoBundle {
-    private static final String TAG = "AutoBundle";
+    static final String TAG = "AutoBundle";
     private static volatile AutoBundle instance;
     @VisibleForTesting
     final Map<Class<?>, Constructor<? extends IBinder>> BINDINGS = new LinkedHashMap<>();
@@ -196,6 +196,7 @@ public class AutoBundle {
         }
 
         public Builder addListener(OnBundleListener listener) {
+            Utils.checkNotNull(listener, "listener=null");
             if (listeners == null) {
                 listeners = new ArrayList<>();
             }

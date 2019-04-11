@@ -110,9 +110,13 @@ final class BundleFactory {
         }
         Bundle bundle = new Bundle();
         for (int p = 0; p < argumentCount; p++) {
-            handlers[p].apply(bundle, args[p]);
+            ParameterHandler<Object> handler = handlers[p];
+            handler.apply(bundle, args[p]);
+            for (OnBundleListener listener : AutoBundle.getInstance().listeners) {
+                listener.onBundling(-1, handler.key, args[p], handler.required);
+            }
             if (AutoBundle.getInstance().debug) {
-                Log.d(AutoBundle.TAG, "Bundling key: " + handlers[p].key + ", value: " + args[p] + ", required: " + handlers[p].required
+                Log.d(AutoBundle.TAG, "Bundling key: " + handler.key + ", value: " + args[p] + ", required: " + handler.required
                         + " \n in parameter #" + (p + 1)
                         + " for method "
                         + method.getDeclaringClass().getSimpleName()
@@ -120,6 +124,9 @@ final class BundleFactory {
                         + method.getName()
                 );
             }
+        }
+        for (OnBundleListener listener : AutoBundle.getInstance().listeners) {
+            listener.onCompleted(-1, bundle);
         }
         return bundle;
     }
