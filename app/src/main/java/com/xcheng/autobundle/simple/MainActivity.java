@@ -137,17 +137,20 @@ public class MainActivity extends TopActivity {
     }
 
     public void objectArray(CharSequence[] array) {
-
-    }
-
-    public void objectList(List<? extends ArrayList<List<? extends ArrayList<SerializableValue>>>> array) {
-
     }
 
     public void invoke(View view) {
+        SparseArray<Bundle> sparseArray = new SparseArray<>();
+
+        Bundle bundle1 = new Bundle();
+        bundle1.putString("testa", "程鑫");
+
+        sparseArray.put(1, bundle1);
+
         Bundle loginBundle = AutoBundle.getInstance()
                 .create(BundleService.class)
-                .charSequenceArray(null);
+                .sparseParcelableArrayListBundle(new SparseArray<MyList<String>>());
+
         Log.e("print", loginBundle.toString());
     }
 

@@ -1,11 +1,21 @@
 package com.xcheng.autobundle.simple;
 
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.util.SparseArray;
 
+import java.util.ArrayList;
+
+import autobundle.annotation.BooleanArrayValue;
+import autobundle.annotation.BooleanValue;
 import autobundle.annotation.BundleFlag;
-import autobundle.annotation.CharSequenceArrayValue;
+import autobundle.annotation.IntArrayValue;
+import autobundle.annotation.IntValue;
+import autobundle.annotation.ParcelableArrayListValue;
+import autobundle.annotation.ParcelableArrayValue;
+import autobundle.annotation.ParcelableValue;
 import autobundle.annotation.SparseParcelableArrayValue;
-import autobundle.annotation.StringValue;
+import autobundle.annotation.StringArrayValue;
 
 /**
  * 创建时间：2019/4/10
@@ -14,10 +24,24 @@ import autobundle.annotation.StringValue;
  */
 public interface BundleService {
     @BundleFlag(1)
-    Bundle loginBundle(@StringValue("name") String name);
-    @BundleFlag(100)
-    Bundle charSequenceArray(@CharSequenceArrayValue("charSequenceArrayList") String[] charSequences);
+    Bundle intBundle(@IntValue("_int") int value);
 
-    Bundle charSequenceArrayList(@SparseParcelableArrayValue("charSequenceArrayList") MyList<Bundle> age);
+    @BundleFlag(2)
+    Bundle booleanBundle(@BooleanValue("_boolean") boolean value);
+    
+    @BundleFlag(2)
+    Bundle intArrayBundle(@IntArrayValue("_intArray") int[] value);
+
+    Bundle booleanArrayBundle(@BooleanArrayValue("_booleanArray") boolean[] value);
+
+    Bundle stringArrayBundle(@StringArrayValue("_StringArray") String[] value);
+
+    Bundle parcelableArrayBundle(@ParcelableArrayValue("_ParcelableArray") Parcelable[] value);
+
+    Bundle parcelableArrayListBundle(@ParcelableArrayListValue("_ParcelableArrayList") ArrayList<? extends Parcelable> value);
+
+    Bundle sparseParcelableArrayListBundle(@SparseParcelableArrayValue("_SparseParcelableArray") SparseArray<MyList<String>> value);
+
+    Bundle parcelableBundle(@ParcelableValue("_ParcelableArrayList") Parcelable value);
 
 }
