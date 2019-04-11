@@ -4,18 +4,21 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.SparseArray;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-import autobundle.annotation.BooleanArrayValue;
-import autobundle.annotation.BooleanValue;
 import autobundle.annotation.BundleFlag;
 import autobundle.annotation.IntArrayValue;
 import autobundle.annotation.IntValue;
 import autobundle.annotation.ParcelableArrayListValue;
 import autobundle.annotation.ParcelableArrayValue;
 import autobundle.annotation.ParcelableValue;
+import autobundle.annotation.Required;
+import autobundle.annotation.SerializableValue;
 import autobundle.annotation.SparseParcelableArrayValue;
+import autobundle.annotation.StringArrayListValue;
 import autobundle.annotation.StringArrayValue;
+import autobundle.annotation.StringValue;
 
 /**
  * 创建时间：2019/4/10
@@ -27,21 +30,24 @@ public interface BundleService {
     Bundle intBundle(@IntValue("_int") int value);
 
     @BundleFlag(2)
-    Bundle booleanBundle(@BooleanValue("_boolean") boolean value);
-    
-    @BundleFlag(2)
-    Bundle intArrayBundle(@IntArrayValue("_intArray") int[] value);
+    Bundle stringBundle(@StringValue("_String") String value);
 
-    Bundle booleanArrayBundle(@BooleanArrayValue("_booleanArray") boolean[] value);
+    @BundleFlag(3)
+    Bundle intArrayBundle(@IntArrayValue("_intArray") int[] value);
 
     Bundle stringArrayBundle(@StringArrayValue("_StringArray") String[] value);
 
     Bundle parcelableArrayBundle(@ParcelableArrayValue("_ParcelableArray") Parcelable[] value);
 
+    Bundle sparseParcelableArrayBundle(@Required @SparseParcelableArrayValue("_SparseParcelableArray")
+                                               SparseArray<? extends Parcelable> value);
+
+    Bundle stringArrayListBundle(@Required @StringArrayListValue("_StringArrayListValue") ArrayList<String> value);
+
     Bundle parcelableArrayListBundle(@ParcelableArrayListValue("_ParcelableArrayList") ArrayList<? extends Parcelable> value);
 
-    Bundle sparseParcelableArrayListBundle(@SparseParcelableArrayValue("_SparseParcelableArray") SparseArray<MyList<String>> value);
-
     Bundle parcelableBundle(@ParcelableValue("_ParcelableArrayList") Parcelable value);
+
+    Bundle parcelableBundle(@SerializableValue("_SerializableValue") Serializable value);
 
 }
