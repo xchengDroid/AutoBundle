@@ -18,6 +18,7 @@ package autobundle;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.util.SparseArray;
 
 import java.io.Serializable;
@@ -171,6 +172,15 @@ final class BundleFactory {
         private ParameterHandler<?> parseParameterAnnotation(
                 int p, Type type, Annotation annotation, boolean required) {
             Class<? extends Annotation> annotationClass = annotation.annotationType();
+
+            if (AutoBundle.getInstance().debug) {
+                Log.d(AutoBundle.TAG, "Parse " + annotation + " \nin parameter #" + (p + 1)
+                        + " for method "
+                        + method.getDeclaringClass().getSimpleName()
+                        + "."
+                        + method.getName()
+                );
+            }
             // 基础数据类型
             if (annotation instanceof IntValue) {
                 checkParameterType(annotationClass, type, int.class, p);
