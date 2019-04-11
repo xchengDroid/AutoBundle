@@ -1,2 +1,2 @@
 <!--至少需要包名 ARouter ButterKnife-->
-<manifest package="autobundle" />
+<manifest package="autobundle.api" />
