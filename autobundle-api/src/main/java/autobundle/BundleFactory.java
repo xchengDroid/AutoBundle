@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import autobundle.annotation.BooleanArrayValue;
 import autobundle.annotation.BooleanValue;
+import autobundle.annotation.BundleFlag;
 import autobundle.annotation.ByteArrayValue;
 import autobundle.annotation.ByteValue;
 import autobundle.annotation.CharArrayValue;
@@ -94,10 +95,12 @@ final class BundleFactory {
 
     private final ParameterHandler<?>[] parameterHandlers;
     private final Method method;
+    private final int bundleFlag;
 
-    private BundleFactory(Method method, ParameterHandler<?>[] parameterHandlers) {
+    private BundleFactory(Method method, ParameterHandler<?>[] parameterHandlers, int bundleFlag) {
         this.method = method;
         this.parameterHandlers = parameterHandlers;
+        this.bundleFlag = bundleFlag;
     }
 
     Bundle invoke(Object[] args) {
@@ -113,7 +116,7 @@ final class BundleFactory {
             ParameterHandler<Object> handler = handlers[p];
             handler.apply(bundle, args[p]);
             for (OnBundleListener listener : AutoBundle.getInstance().listeners) {
-                listener.onBundling(-1, handler.key, args[p], handler.required);
+                listener.onBundling(bundleFlag, handler.key, args[p], handler.required);
             }
             if (AutoBundle.getInstance().debug) {
                 Log.d(AutoBundle.TAG, "Bundling key: " + handler.key + ", value: " + args[p] + ", required: " + handler.required
@@ -126,7 +129,7 @@ final class BundleFactory {
             }
         }
         for (OnBundleListener listener : AutoBundle.getInstance().listeners) {
-            listener.onCompleted(-1, bundle);
+            listener.onCompleted(bundleFlag, bundle);
         }
         return bundle;
     }
@@ -142,12 +145,18 @@ final class BundleFactory {
         final Annotation[][] parameterAnnotationsArray;
         final Type[] parameterTypes;
         ParameterHandler<?>[] parameterHandlers;
+        int bundleFlag = -1;// by default
 
         Builder(Method method) {
             this.method = method;
             this.methodAnnotations = method.getAnnotations();
             this.parameterTypes = method.getGenericParameterTypes();
             this.parameterAnnotationsArray = method.getParameterAnnotations();
+            for (Annotation annotation : methodAnnotations) {
+                if (annotation instanceof BundleFlag) {
+                    bundleFlag = ((BundleFlag) annotation).value();
+                }
+            }
         }
 
         BundleFactory build() {
@@ -156,7 +165,7 @@ final class BundleFactory {
             for (int p = 0; p < parameterCount; p++) {
                 parameterHandlers[p] = parseParameter(p, parameterTypes[p], parameterAnnotationsArray[p]);
             }
-            return new BundleFactory(method, parameterHandlers);
+            return new BundleFactory(method, parameterHandlers, bundleFlag);
         }
 
         private ParameterHandler<?> parseParameter(

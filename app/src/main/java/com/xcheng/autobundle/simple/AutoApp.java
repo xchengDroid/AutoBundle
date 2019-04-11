@@ -23,7 +23,7 @@ public class AutoApp extends Application {
                 .addListener(new OnBundleListener() {
                     @Override
                     public void onBundling(int flag, String key, @Nullable Object value, boolean required) {
-                        Log.e("print", "key");
+                        Log.e("print", "key:"+key+" flag:"+flag);
                     }
 
                     @Override
