@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2015 Square, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package autobundle;
 
 import android.os.Bundle;
@@ -20,283 +5,284 @@ import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.util.SparseArray;
 
+import java.io.Serializable;
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+
+import autobundle.annotation.BooleanArrayValue;
+import autobundle.annotation.BooleanValue;
+import autobundle.annotation.ByteArrayValue;
+import autobundle.annotation.ByteValue;
+import autobundle.annotation.CharArrayValue;
+import autobundle.annotation.CharSequenceArrayListValue;
+import autobundle.annotation.CharSequenceArrayValue;
+import autobundle.annotation.CharSequenceValue;
+import autobundle.annotation.CharValue;
+import autobundle.annotation.DoubleArrayValue;
+import autobundle.annotation.DoubleValue;
+import autobundle.annotation.FloatArrayValue;
+import autobundle.annotation.FloatValue;
+import autobundle.annotation.IntArrayValue;
+import autobundle.annotation.IntValue;
+import autobundle.annotation.IntegerArrayListValue;
+import autobundle.annotation.LongArrayValue;
+import autobundle.annotation.LongValue;
+import autobundle.annotation.ParcelableArrayListValue;
+import autobundle.annotation.ParcelableArrayValue;
+import autobundle.annotation.ParcelableValue;
+import autobundle.annotation.SerializableValue;
+import autobundle.annotation.ShortArrayValue;
+import autobundle.annotation.ShortValue;
+import autobundle.annotation.SparseParcelableArrayValue;
+import autobundle.annotation.StringArrayListValue;
+import autobundle.annotation.StringArrayValue;
+import autobundle.annotation.StringValue;
+
 abstract class ParameterHandler<T> {
     final String key;
     //Primitive type wont be check!
     final boolean required;
 
-    ParameterHandler(String key, boolean required) {
+    private ParameterHandler(String key, boolean required) {
         this.key = key;
         this.required = required;
     }
 
     abstract void apply(Bundle bundle, @Nullable T value);
 
-    static final class IntHandler extends ParameterHandler<Integer> {
-
-        IntHandler(String key, boolean required) {
-            super(key, required);
+    static ParameterHandler<?> create(Class<? extends Annotation> annotationClass, String key,
+                                      boolean required) {
+        //基础数据类型
+        if (annotationClass == IntValue.class) {
+            return new ParameterHandler<Integer>(key, required) {
+                @Override
+                void apply(Bundle bundle, Integer value) {
+                    bundle.putInt(key, value);
+                }
+            };
+        } else if (annotationClass == LongValue.class) {
+            return new ParameterHandler<Long>(key, required) {
+                @Override
+                void apply(Bundle bundle, Long value) {
+                    bundle.putLong(key, value);
+                }
+            };
+        } else if (annotationClass == DoubleValue.class) {
+            return new ParameterHandler<Double>(key, required) {
+                @Override
+                void apply(Bundle bundle, Double value) {
+                    bundle.putDouble(key, value);
+                }
+            };
+        } else if (annotationClass == FloatValue.class) {
+            return new ParameterHandler<Float>(key, required) {
+                @Override
+                void apply(Bundle bundle, Float value) {
+                    bundle.putFloat(key, value);
+                }
+            };
+        } else if (annotationClass == ByteValue.class) {
+            return new ParameterHandler<Byte>(key, required) {
+                @Override
+                void apply(Bundle bundle, Byte value) {
+                    bundle.putByte(key, value);
+                }
+            };
+        } else if (annotationClass == ShortValue.class) {
+            return new ParameterHandler<Short>(key, required) {
+                @Override
+                void apply(Bundle bundle, Short value) {
+                    bundle.putShort(key, value);
+                }
+            };
+        } else if (annotationClass == CharValue.class) {
+            return new ParameterHandler<Character>(key, required) {
+                @Override
+                void apply(Bundle bundle, Character value) {
+                    bundle.putChar(key, value);
+                }
+            };
+        } else if (annotationClass == BooleanValue.class) {
+            return new ParameterHandler<Boolean>(key, required) {
+                @Override
+                void apply(Bundle bundle, Boolean value) {
+                    bundle.putBoolean(key, value);
+                }
+            };
         }
 
-        @Override
-        void apply(Bundle bundle, Integer value) {
-            bundle.putInt(key, value);
-        }
-    }
-
-
-    static final class LongHandler extends ParameterHandler<Long> {
-
-        LongHandler(String key, boolean required) {
-            super(key, required);
-        }
-
-        @Override
-        void apply(Bundle bundle, Long value) {
-            bundle.putLong(key, value);
-        }
-    }
-
-    static final class DoubleHandler extends ParameterHandler<Double> {
-
-        DoubleHandler(String key, boolean required) {
-            super(key, required);
-        }
-
-        @Override
-        void apply(Bundle bundle, Double value) {
-            bundle.putDouble(key, value);
-        }
-    }
-
-    static final class FloatHandler extends ParameterHandler<Float> {
-
-        FloatHandler(String key, boolean required) {
-            super(key, required);
+        //复合数据类型
+        else if (annotationClass == StringValue.class) {
+            return new ParameterHandler<String>(key, required) {
+                @Override
+                void apply(Bundle bundle, @Nullable String value) {
+                    Utils.checkRequiredValue(key, value, required);
+                    bundle.putString(key, value);
+                }
+            };
+        } else if (annotationClass == CharSequenceValue.class) {
+            return new ParameterHandler<CharSequence>(key, required) {
+                @Override
+                void apply(Bundle bundle, @Nullable CharSequence value) {
+                    Utils.checkRequiredValue(key, value, required);
+                    bundle.putCharSequence(key, value);
+                }
+            };
+        } else if (annotationClass == SerializableValue.class) {
+            return new ParameterHandler<Serializable>(key, required) {
+                @Override
+                void apply(Bundle bundle, @Nullable Serializable value) {
+                    Utils.checkRequiredValue(key, value, required);
+                    bundle.putSerializable(key, value);
+                }
+            };
+        } else if (annotationClass == ParcelableValue.class) {
+            return new ParameterHandler<Parcelable>(key, required) {
+                @Override
+                void apply(Bundle bundle, @Nullable Parcelable value) {
+                    Utils.checkRequiredValue(key, value, required);
+                    bundle.putParcelable(key, value);
+                }
+            };
         }
 
-        @Override
-        void apply(Bundle bundle, Float value) {
-            bundle.putFloat(key, value);
-        }
-    }
-
-    static final class ByteHandler extends ParameterHandler<Byte> {
-
-        ByteHandler(String key, boolean required) {
-            super(key, required);
-        }
-
-        @Override
-        void apply(Bundle bundle, Byte value) {
-            bundle.putByte(key, value);
-        }
-    }
-
-    static final class ShortHandler extends ParameterHandler<Short> {
-
-        ShortHandler(String key, boolean required) {
-            super(key, required);
-        }
-
-        @Override
-        void apply(Bundle bundle, Short value) {
-            bundle.putShort(key, value);
-        }
-    }
-
-    static final class CharacterHandler extends ParameterHandler<Character> {
-
-        CharacterHandler(String key, boolean required) {
-            super(key, required);
-        }
-
-        @Override
-        void apply(Bundle bundle, Character value) {
-            bundle.putChar(key, value);
-        }
-    }
-
-    static final class BooleanHandler extends ParameterHandler<Boolean> {
-        BooleanHandler(String key, boolean required) {
-            super(key, required);
-        }
-
-        @Override
-        void apply(Bundle bundle, Boolean value) {
-            bundle.putBoolean(key, value);
-        }
-    }
-
-    static final class BooleanArrayHandler extends ParameterHandler<boolean[]> {
-        BooleanArrayHandler(String key, boolean required) {
-            super(key, required);
-        }
-
-        @Override
-        void apply(Bundle bundle, @Nullable boolean[] value) {
-            Utils.checkRequiredValue(key, value, required);
-            bundle.putBooleanArray(key, value);
-
-        }
-    }
-
-    static final class ByteArrayHandler extends ParameterHandler<byte[]> {
-        ByteArrayHandler(String key, boolean required) {
-            super(key, required);
+        //基础数据类型数组
+        else if (annotationClass == BooleanArrayValue.class) {
+            return new ParameterHandler<boolean[]>(key, required) {
+                @Override
+                void apply(Bundle bundle, @Nullable boolean[] value) {
+                    Utils.checkRequiredValue(key, value, required);
+                    bundle.putBooleanArray(key, value);
+                }
+            };
+        } else if (annotationClass == ByteArrayValue.class) {
+            return new ParameterHandler<byte[]>(key, required) {
+                @Override
+                void apply(Bundle bundle, @Nullable byte[] value) {
+                    Utils.checkRequiredValue(key, value, required);
+                    bundle.putByteArray(key, value);
+                }
+            };
+        } else if (annotationClass == CharArrayValue.class) {
+            return new ParameterHandler<char[]>(key, required) {
+                @Override
+                void apply(Bundle bundle, @Nullable char[] value) {
+                    Utils.checkRequiredValue(key, value, required);
+                    bundle.putCharArray(key, value);
+                }
+            };
+        } else if (annotationClass == DoubleArrayValue.class) {
+            return new ParameterHandler<double[]>(key, required) {
+                @Override
+                void apply(Bundle bundle, @Nullable double[] value) {
+                    Utils.checkRequiredValue(key, value, required);
+                    bundle.putDoubleArray(key, value);
+                }
+            };
+        } else if (annotationClass == FloatArrayValue.class) {
+            return new ParameterHandler<float[]>(key, required) {
+                @Override
+                void apply(Bundle bundle, @Nullable float[] value) {
+                    Utils.checkRequiredValue(key, value, required);
+                    bundle.putFloatArray(key, value);
+                }
+            };
+        } else if (annotationClass == IntArrayValue.class) {
+            return new ParameterHandler<int[]>(key, required) {
+                @Override
+                void apply(Bundle bundle, @Nullable int[] value) {
+                    Utils.checkRequiredValue(key, value, required);
+                    bundle.putIntArray(key, value);
+                }
+            };
+        } else if (annotationClass == LongArrayValue.class) {
+            return new ParameterHandler<long[]>(key, required) {
+                @Override
+                void apply(Bundle bundle, @Nullable long[] value) {
+                    Utils.checkRequiredValue(key, value, required);
+                    bundle.putLongArray(key, value);
+                }
+            };
+        } else if (annotationClass == ShortArrayValue.class) {
+            return new ParameterHandler<short[]>(key, required) {
+                @Override
+                void apply(Bundle bundle, @Nullable short[] value) {
+                    Utils.checkRequiredValue(key, value, required);
+                    bundle.putShortArray(key, value);
+                }
+            };
         }
 
-        @Override
-        void apply(Bundle bundle, @Nullable byte[] value) {
-            Utils.checkRequiredValue(key, value, required);
-            bundle.putByteArray(key, value);
-        }
-    }
-
-    static final class CharArrayHandler extends ParameterHandler<char[]> {
-        CharArrayHandler(String key, boolean required) {
-            super(key, required);
-        }
-
-        @Override
-        void apply(Bundle bundle, @Nullable char[] value) {
-            Utils.checkRequiredValue(key, value, required);
-            bundle.putCharArray(key, value);
-        }
-    }
-
-    static final class DoubleArrayHandler extends ParameterHandler<double[]> {
-        DoubleArrayHandler(String key, boolean required) {
-            super(key, required);
-        }
-
-        @Override
-        void apply(Bundle bundle, @Nullable double[] value) {
-            Utils.checkRequiredValue(key, value, required);
-            bundle.putDoubleArray(key, value);
-        }
-    }
-
-    static final class FloatArrayHandler extends ParameterHandler<float[]> {
-        FloatArrayHandler(String key, boolean required) {
-            super(key, required);
-        }
-
-        @Override
-        void apply(Bundle bundle, @Nullable float[] value) {
-            Utils.checkRequiredValue(key, value, required);
-            bundle.putFloatArray(key, value);
-        }
-    }
-
-    static final class IntArrayHandler extends ParameterHandler<int[]> {
-        IntArrayHandler(String key, boolean required) {
-            super(key, required);
+        //复合数据类型数组
+        else if (annotationClass == ParcelableArrayValue.class) {
+            return new ParameterHandler<Parcelable[]>(key, required) {
+                @Override
+                void apply(Bundle bundle, @Nullable Parcelable[] value) {
+                    Utils.checkRequiredValue(key, value, required);
+                    bundle.putParcelableArray(key, value);
+                }
+            };
+        } else if (annotationClass == CharSequenceArrayValue.class) {
+            return new ParameterHandler<CharSequence[]>(key, required) {
+                @Override
+                void apply(Bundle bundle, @Nullable CharSequence[] value) {
+                    Utils.checkRequiredValue(key, value, required);
+                    bundle.putCharSequenceArray(key, value);
+                }
+            };
+        } else if (annotationClass == StringArrayValue.class) {
+            return new ParameterHandler<String[]>(key, required) {
+                @Override
+                void apply(Bundle bundle, @Nullable String[] value) {
+                    Utils.checkRequiredValue(key, value, required);
+                    bundle.putStringArray(key, value);
+                }
+            };
+        } else if (annotationClass == SparseParcelableArrayValue.class) {
+            return new ParameterHandler<SparseArray<? extends Parcelable>>(key, required) {
+                @Override
+                void apply(Bundle bundle, @Nullable SparseArray<? extends Parcelable> value) {
+                    Utils.checkRequiredValue(key, value, required);
+                    bundle.putSparseParcelableArray(key, value);
+                }
+            };
         }
 
-        @Override
-        void apply(Bundle bundle, @Nullable int[] value) {
-            Utils.checkRequiredValue(key, value, required);
-            bundle.putIntArray(key, value);
+        //列表类型ArrayList
+        else if (annotationClass == CharSequenceArrayListValue.class) {
+            return new ParameterHandler<ArrayList<CharSequence>>(key, required) {
+                @Override
+                void apply(Bundle bundle, @Nullable ArrayList<CharSequence> value) {
+                    Utils.checkRequiredValue(key, value, required);
+                    bundle.putCharSequenceArrayList(key, value);
+                }
+            };
+        } else if (annotationClass == IntegerArrayListValue.class) {
+            return new ParameterHandler<ArrayList<Integer>>(key, required) {
+                @Override
+                void apply(Bundle bundle, @Nullable ArrayList<Integer> value) {
+                    Utils.checkRequiredValue(key, value, required);
+                    bundle.putIntegerArrayList(key, value);
+                }
+            };
+        } else if (annotationClass == ParcelableArrayListValue.class) {
+            return new ParameterHandler<ArrayList<? extends Parcelable>>(key, required) {
+                @Override
+                void apply(Bundle bundle, @Nullable ArrayList<? extends Parcelable> value) {
+                    Utils.checkRequiredValue(key, value, required);
+                    bundle.putParcelableArrayList(key, value);
+                }
+            };
+        } else if (annotationClass == StringArrayListValue.class) {
+            return new ParameterHandler<ArrayList<String>>(key, required) {
+                @Override
+                void apply(Bundle bundle, @Nullable ArrayList<String> value) {
+                    Utils.checkRequiredValue(key, value, required);
+                    bundle.putStringArrayList(key, value);
+                }
+            };
         }
-    }
-
-    static final class LongArrayHandler extends ParameterHandler<long[]> {
-        LongArrayHandler(String key, boolean required) {
-            super(key, required);
-        }
-
-        @Override
-        void apply(Bundle bundle, @Nullable long[] value) {
-            Utils.checkRequiredValue(key, value, required);
-            bundle.putLongArray(key, value);
-        }
-    }
-
-    static final class ShortArrayHandler extends ParameterHandler<short[]> {
-        ShortArrayHandler(String key, boolean required) {
-            super(key, required);
-        }
-
-        @Override
-        void apply(Bundle bundle, @Nullable short[] value) {
-            Utils.checkRequiredValue(key, value, required);
-            bundle.putShortArray(key, value);
-        }
-    }
-
-    static final class ParcelableArrayHandler extends ParameterHandler<Parcelable[]> {
-        ParcelableArrayHandler(String key, boolean required) {
-            super(key, required);
-        }
-
-        @Override
-        void apply(Bundle bundle, @Nullable Parcelable[] value) {
-            Utils.checkRequiredValue(key, value, required);
-            bundle.putParcelableArray(key, value);
-        }
-    }
-
-    static final class CharSequenceArrayHandler extends ParameterHandler<CharSequence[]> {
-        CharSequenceArrayHandler(String key, boolean required) {
-            super(key, required);
-        }
-
-        @Override
-        void apply(Bundle bundle, @Nullable CharSequence[] value) {
-            Utils.checkRequiredValue(key, value, required);
-            bundle.putCharSequenceArray(key, value);
-        }
-    }
-
-    static final class StringArrayHandler extends ParameterHandler<String[]> {
-        StringArrayHandler(String key, boolean required) {
-            super(key, required);
-        }
-
-        @Override
-        void apply(Bundle bundle, @Nullable String[] value) {
-            Utils.checkRequiredValue(key, value, required);
-            bundle.putStringArray(key, value);
-        }
-    }
-
-    static final class SparseArrayHandler extends ParameterHandler<SparseArray<? extends Parcelable>> {
-        SparseArrayHandler(String key, boolean required) {
-            super(key, required);
-        }
-
-        @Override
-        void apply(Bundle bundle, @Nullable SparseArray<? extends Parcelable> value) {
-            Utils.checkRequiredValue(key, value, required);
-            bundle.putSparseParcelableArray(key, value);
-        }
-    }
-
-
-    static final class StringHandler extends ParameterHandler<String> {
-
-        StringHandler(String key, boolean required) {
-            super(key, required);
-        }
-
-        @Override
-        void apply(Bundle bundle, @Nullable String value) {
-            Utils.checkRequiredValue(key, value, required);
-            bundle.putString(key, value);
-        }
-    }
-
-    static final class CharSequenceHandler extends ParameterHandler<CharSequence> {
-
-        CharSequenceHandler(String key, boolean required) {
-            super(key, required);
-        }
-
-        @Override
-        void apply(Bundle bundle, @Nullable CharSequence value) {
-            Utils.checkRequiredValue(key, value, required);
-            bundle.putCharSequence(key, value);
-        }
+        throw new IllegalArgumentException("Argument (@" + annotationClass.getSimpleName()
+                + ") doesn't matched ,please use AutoBundle annotation.");
     }
 }

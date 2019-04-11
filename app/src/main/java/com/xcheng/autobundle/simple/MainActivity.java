@@ -133,9 +133,8 @@ public class MainActivity extends TopActivity {
         bundle.putCharSequenceArray("1232", strings);
         objectArray(strings);
 
-        ArrayList<String> charsqs = new ArrayList<>();
-
-        //bundle.putCharSequenceArrayList("chars",charsqs);
+//        ArrayList<String> stringList = new ArrayList<>();
+//        bundle.putCharSequenceArrayList("strings",stringList);
 
        // bundle.putParcelableArrayList("", new ArrayList<MyList>());
     }
@@ -149,7 +148,7 @@ public class MainActivity extends TopActivity {
     }
 
     public void invoke(View view) {
-        Bundle loginBundle = AutoBundle.create(BundleService.class).charSequenceArray(new MyList<Bundle>());
+        Bundle loginBundle = AutoBundle.create(BundleService.class).charSequenceArray(null);
         Log.e("print", loginBundle.toString());
     }
 

@@ -165,77 +165,92 @@ final class BundleFactory {
         @Nullable
         private ParameterHandler<?> parseParameterAnnotation(
                 int p, Type type, Annotation annotation, boolean required) {
+            Class<? extends Annotation> annotationClass = annotation.annotationType();
             // 基础数据类型
             if (annotation instanceof IntValue) {
-                checkParameterType(annotation, type, int.class, p);
-                return new ParameterHandler.IntHandler(((IntValue) annotation).value(), required);
+                checkParameterType(annotationClass, type, int.class, p);
+                return ParameterHandler.create(annotationClass, ((IntValue) annotation).value(), required);
             } else if (annotation instanceof LongValue) {
-                checkParameterType(annotation, type, long.class, p);
-                return new ParameterHandler.IntHandler(((LongValue) annotation).value(), required);
+                checkParameterType(annotationClass, type, long.class, p);
+                return ParameterHandler.create(annotationClass, ((LongValue) annotation).value(), required);
             } else if (annotation instanceof DoubleValue) {
-                checkParameterType(annotation, type, double.class, p);
-                return new ParameterHandler.IntHandler(((DoubleValue) annotation).value(), required);
+                checkParameterType(annotationClass, type, double.class, p);
+                return ParameterHandler.create(annotationClass, ((DoubleValue) annotation).value(), required);
             } else if (annotation instanceof FloatValue) {
-                checkParameterType(annotation, type, float.class, p);
-                return new ParameterHandler.IntHandler(((FloatValue) annotation).value(), required);
+                checkParameterType(annotationClass, type, float.class, p);
+                return ParameterHandler.create(annotationClass, ((FloatValue) annotation).value(), required);
             } else if (annotation instanceof ByteValue) {
-                checkParameterType(annotation, type, byte.class, p);
-                return new ParameterHandler.IntHandler(((ByteValue) annotation).value(), required);
+                checkParameterType(annotationClass, type, byte.class, p);
+                return ParameterHandler.create(annotationClass, ((ByteValue) annotation).value(), required);
             } else if (annotation instanceof ShortValue) {
-                checkParameterType(annotation, type, short.class, p);
-                return new ParameterHandler.IntHandler(((ShortValue) annotation).value(), required);
+                checkParameterType(annotationClass, type, short.class, p);
+                return ParameterHandler.create(annotationClass, ((ShortValue) annotation).value(), required);
             } else if (annotation instanceof CharValue) {
-                checkParameterType(annotation, type, char.class, p);
-                return new ParameterHandler.IntHandler(((CharValue) annotation).value(), required);
+                checkParameterType(annotationClass, type, char.class, p);
+                return ParameterHandler.create(annotationClass, ((CharValue) annotation).value(), required);
             } else if (annotation instanceof BooleanValue) {
-                checkParameterType(annotation, type, boolean.class, p);
-                return new ParameterHandler.IntHandler(((BooleanValue) annotation).value(), required);
+                checkParameterType(annotationClass, type, boolean.class, p);
+                return ParameterHandler.create(annotationClass, ((BooleanValue) annotation).value(), required);
             }
 
+            // 复合数据类型
+            else if (annotation instanceof StringValue) {
+                checkParameterType(annotationClass, type, String.class, p);
+                return ParameterHandler.create(annotationClass, ((StringValue) annotation).value(), required);
+            } else if (annotation instanceof CharSequenceValue) {
+                checkParameterType(annotationClass, type, CharSequence.class, p);
+                return ParameterHandler.create(annotationClass, ((CharSequenceValue) annotation).value(), required);
+            } else if (annotation instanceof SerializableValue) {
+                checkParameterType(annotationClass, type, Serializable.class, p);
+                return ParameterHandler.create(annotationClass, ((SerializableValue) annotation).value(), required);
+            } else if (annotation instanceof ParcelableValue) {
+                checkParameterType(annotationClass, type, Parcelable.class, p);
+                return ParameterHandler.create(annotationClass, ((ParcelableValue) annotation).value(), required);
+            }
 
             // 基础数据类型数组
             else if (annotation instanceof BooleanArrayValue) {
-                checkParameterType(annotation, type, boolean[].class, p);
-                return new ParameterHandler.IntHandler(((BooleanArrayValue) annotation).value(), required);
+                checkParameterType(annotationClass, type, boolean[].class, p);
+                return ParameterHandler.create(annotationClass, ((BooleanArrayValue) annotation).value(), required);
             } else if (annotation instanceof ByteArrayValue) {
-                checkParameterType(annotation, type, byte[].class, p);
-                return new ParameterHandler.IntHandler(((ByteArrayValue) annotation).value(), required);
+                checkParameterType(annotationClass, type, byte[].class, p);
+                return ParameterHandler.create(annotationClass, ((ByteArrayValue) annotation).value(), required);
             } else if (annotation instanceof CharArrayValue) {
-                checkParameterType(annotation, type, char[].class, p);
-                return new ParameterHandler.IntHandler(((CharArrayValue) annotation).value(), required);
+                checkParameterType(annotationClass, type, char[].class, p);
+                return ParameterHandler.create(annotationClass, ((CharArrayValue) annotation).value(), required);
             } else if (annotation instanceof DoubleArrayValue) {
-                checkParameterType(annotation, type, double[].class, p);
-                return new ParameterHandler.IntHandler(((DoubleArrayValue) annotation).value(), required);
+                checkParameterType(annotationClass, type, double[].class, p);
+                return ParameterHandler.create(annotationClass, ((DoubleArrayValue) annotation).value(), required);
             } else if (annotation instanceof FloatArrayValue) {
-                checkParameterType(annotation, type, float[].class, p);
-                return new ParameterHandler.IntHandler(((FloatArrayValue) annotation).value(), required);
+                checkParameterType(annotationClass, type, float[].class, p);
+                return ParameterHandler.create(annotationClass, ((FloatArrayValue) annotation).value(), required);
             } else if (annotation instanceof IntArrayValue) {
-                checkParameterType(annotation, type, int[].class, p);
-                return new ParameterHandler.IntHandler(((IntArrayValue) annotation).value(), required);
+                checkParameterType(annotationClass, type, int[].class, p);
+                return ParameterHandler.create(annotationClass, ((IntArrayValue) annotation).value(), required);
             } else if (annotation instanceof LongArrayValue) {
-                checkParameterType(annotation, type, long[].class, p);
-                return new ParameterHandler.IntHandler(((LongArrayValue) annotation).value(), required);
+                checkParameterType(annotationClass, type, long[].class, p);
+                return ParameterHandler.create(annotationClass, ((LongArrayValue) annotation).value(), required);
             } else if (annotation instanceof ShortArrayValue) {
-                checkParameterType(annotation, type, short[].class, p);
-                return new ParameterHandler.IntHandler(((ShortArrayValue) annotation).value(), required);
+                checkParameterType(annotationClass, type, short[].class, p);
+                return ParameterHandler.create(annotationClass, ((ShortArrayValue) annotation).value(), required);
             }
 
             // 复合数据类型数组
             else if (annotation instanceof ParcelableArrayValue) {
                 // Parcelable[] value
-                checkParameterType(annotation, type, Parcelable[].class, p);
-                return new ParameterHandler.IntHandler(((ParcelableArrayValue) annotation).value(), required);
+                checkParameterType(annotationClass, type, Parcelable[].class, p);
+                return ParameterHandler.create(annotationClass, ((ParcelableArrayValue) annotation).value(), required);
             } else if (annotation instanceof CharSequenceArrayValue) {
                 // CharSequence[] value
-                checkParameterType(annotation, type, CharSequence[].class, p);
-                return new ParameterHandler.IntHandler(((CharSequenceArrayValue) annotation).value(), required);
+                checkParameterType(annotationClass, type, CharSequence[].class, p);
+                return ParameterHandler.create(annotationClass, ((CharSequenceArrayValue) annotation).value(), required);
             } else if (annotation instanceof StringArrayValue) {
                 //String[] value
-                checkParameterType(annotation, type, String[].class, p);
-                return new ParameterHandler.IntHandler(((StringArrayValue) annotation).value(), required);
+                checkParameterType(annotationClass, type, String[].class, p);
+                return ParameterHandler.create(annotationClass, ((StringArrayValue) annotation).value(), required);
             } else if (annotation instanceof SparseParcelableArrayValue) {
                 //SparseArray<? extends Parcelable>
-                checkParameterType(annotation, type, SparseArray.class, p);
+                checkParameterType(annotationClass, type, SparseArray.class, p);
                 Class<?> rawParameterType = Utils.getRawType(type);
                 if (!(type instanceof ParameterizedType)) {
                     arrayListTypeError(rawParameterType, Parcelable.class, p);
@@ -246,25 +261,29 @@ final class BundleFactory {
                 if (!Parcelable.class.isAssignableFrom(listItemClass)) {
                     arrayListTypeError(rawParameterType, Parcelable.class, p);
                 }
-                return new ParameterHandler.IntHandler(((SparseParcelableArrayValue) annotation).value(), required);
+                return ParameterHandler.create(annotationClass, ((SparseParcelableArrayValue) annotation).value(), required);
             }
             //列表类型ArrayList
             else if (annotation instanceof CharSequenceArrayListValue) {
                 // ArrayList<CharSequence> value
-                checkParameterType(annotation, type, ArrayList.class, p);
+                checkParameterType(annotationClass, type, ArrayList.class, p);
                 Class<?> rawParameterType = Utils.getRawType(type);
                 if (!(type instanceof ParameterizedType)) {
                     arrayListTypeError(rawParameterType, CharSequence.class, p);
                 }
                 ParameterizedType parameterizedType = (ParameterizedType) type;
                 Type listItemType = Utils.getParameterUpperBound(0, parameterizedType);
+
+                //note:    if  -> ArrayList<String> stringList = new ArrayList<>();
+                //not allowed  -> bundle.putCharSequenceArrayList("strings",stringList);
+                //so must use  == ;can not use isAssignableFrom()
                 if (CharSequence.class != listItemType) {
                     arrayListTypeError(rawParameterType, CharSequence.class, p);
                 }
-                return new ParameterHandler.IntHandler(((CharSequenceArrayListValue) annotation).value(), required);
+                return ParameterHandler.create(annotationClass, ((CharSequenceArrayListValue) annotation).value(), required);
             } else if (annotation instanceof IntegerArrayListValue) {
                 // ArrayList<Integer> value
-                checkParameterType(annotation, type, ArrayList.class, p);
+                checkParameterType(annotationClass, type, ArrayList.class, p);
                 Class<?> rawParameterType = Utils.getRawType(type);
                 if (!(type instanceof ParameterizedType)) {
                     arrayListTypeError(rawParameterType, Integer.class, p);
@@ -274,10 +293,10 @@ final class BundleFactory {
                 if (Integer.class != listItemType) {
                     arrayListTypeError(rawParameterType, Integer.class, p);
                 }
-                return new ParameterHandler.IntHandler(((IntegerArrayListValue) annotation).value(), required);
+                return ParameterHandler.create(annotationClass, ((IntegerArrayListValue) annotation).value(), required);
             } else if (annotation instanceof ParcelableArrayListValue) {
                 //ArrayList<? extends Parcelable> value
-                checkParameterType(annotation, type, ArrayList.class, p);
+                checkParameterType(annotationClass, type, ArrayList.class, p);
                 Class<?> rawParameterType = Utils.getRawType(type);
                 if (!(type instanceof ParameterizedType)) {
                     arrayListTypeError(rawParameterType, Parcelable.class, p);
@@ -288,10 +307,10 @@ final class BundleFactory {
                 if (!Parcelable.class.isAssignableFrom(listItemClass)) {
                     arrayListTypeError(rawParameterType, Parcelable.class, p);
                 }
-                return new ParameterHandler.IntHandler(((ParcelableArrayListValue) annotation).value(), required);
+                return ParameterHandler.create(annotationClass, ((ParcelableArrayListValue) annotation).value(), required);
             } else if (annotation instanceof StringArrayListValue) {
                 //ArrayList<String> value
-                checkParameterType(annotation, type, ArrayList.class, p);
+                checkParameterType(annotationClass, type, ArrayList.class, p);
                 Class<?> rawParameterType = Utils.getRawType(type);
                 if (!(type instanceof ParameterizedType)) {
                     arrayListTypeError(rawParameterType, String.class, p);
@@ -301,33 +320,18 @@ final class BundleFactory {
                 if (String.class != listItemType) {
                     arrayListTypeError(rawParameterType, String.class, p);
                 }
-                return new ParameterHandler.IntHandler(((StringArrayListValue) annotation).value(), required);
-            }
-
-            // 复合数据类型
-            else if (annotation instanceof StringValue) {
-                checkParameterType(annotation, type, String.class, p);
-                return new ParameterHandler.IntHandler(((StringValue) annotation).value(), required);
-            } else if (annotation instanceof CharSequenceValue) {
-                checkParameterType(annotation, type, CharSequence.class, p);
-                return new ParameterHandler.IntHandler(((CharSequenceValue) annotation).value(), required);
-            } else if (annotation instanceof SerializableValue) {
-                checkParameterType(annotation, type, Serializable.class, p);
-                return new ParameterHandler.IntHandler(((SerializableValue) annotation).value(), required);
-            } else if (annotation instanceof ParcelableValue) {
-                checkParameterType(annotation, type, Parcelable.class, p);
-                return new ParameterHandler.IntHandler(((ParcelableValue) annotation).value(), required);
+                return ParameterHandler.create(annotationClass, ((StringArrayListValue) annotation).value(), required);
             }
             return null;
         }
 
 
-        private void checkParameterType(Annotation annotation, Type type, Class<?> rightClass, int p) {
+        private void checkParameterType(Class<? extends Annotation> annotationClass, Type type, Class<?> rightClass, int p) {
             Class<?> rawType = Utils.getRawType(type);
             if (!rightClass.isAssignableFrom(rawType)) {
                 // annotation.getClass -->Proxy 动态代理
                 throw parameterError(method, p,
-                        "@" + annotation.annotationType().getSimpleName() + " must be " + rightClass.getSimpleName() + " type.");
+                        "@" + annotationClass.getSimpleName() + " must be " + rightClass.getSimpleName() + " type.");
             }
         }
 
