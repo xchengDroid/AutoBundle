@@ -11,7 +11,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * type.
  */
 @Retention(RUNTIME)
-@Target({METHOD})
+@Target(METHOD)
 public @interface BundleFlag {
     /**
      * mark the bundle
