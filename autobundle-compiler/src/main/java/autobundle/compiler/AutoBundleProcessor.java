@@ -348,7 +348,7 @@ public class AutoBundleProcessor extends AbstractProcessor {
         processingEnv.getMessager().printMessage(kind, message, element);
     }
 
-    //是否为某个类的子类
+    //检测是否为某个类的子类
     static boolean isSubtypeOfType(TypeMirror typeMirror, String otherType) {
         if (isTypeEqual(typeMirror, otherType)) {
             return true;
@@ -359,6 +359,7 @@ public class AutoBundleProcessor extends AbstractProcessor {
         DeclaredType declaredType = (DeclaredType) typeMirror;
         List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
         if (typeArguments.size() > 0) {
+            //去除泛型的rawType
             if (declaredType.asElement().toString().equals(otherType)) {
                 return true;
             }
