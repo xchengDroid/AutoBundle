@@ -347,4 +347,40 @@ public class AutoBundleProcessor extends AbstractProcessor {
 
         processingEnv.getMessager().printMessage(kind, message, element);
     }
+
+    //是否为某个类的子类
+    static boolean isSubtypeOfType(TypeMirror typeMirror, String otherType) {
+        if (isTypeEqual(typeMirror, otherType)) {
+            return true;
+        }
+        if (typeMirror.getKind() != TypeKind.DECLARED) {
+            return false;
+        }
+        DeclaredType declaredType = (DeclaredType) typeMirror;
+        List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
+        if (typeArguments.size() > 0) {
+            if (declaredType.asElement().toString().equals(otherType)) {
+                return true;
+            }
+        }
+        Element element = declaredType.asElement();
+        if (!(element instanceof TypeElement)) {
+            return false;
+        }
+        TypeElement typeElement = (TypeElement) element;
+        TypeMirror superType = typeElement.getSuperclass();
+        if (isSubtypeOfType(superType, otherType)) {
+            return true;
+        }
+        for (TypeMirror interfaceType : typeElement.getInterfaces()) {
+            if (isSubtypeOfType(interfaceType, otherType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isTypeEqual(TypeMirror typeMirror, String otherType) {
+        return otherType.equals(typeMirror.toString());
+    }
 }
