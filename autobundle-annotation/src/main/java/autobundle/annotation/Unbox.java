@@ -8,11 +8,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Bind a field  for the specified value. The field will automatically be cast to the field
- * type.
+ * type. TypeName#box unbox
  */
 @Retention(RUNTIME)
 @Target(FIELD)
-public @interface UnBox {
+public @interface Unbox {
     /**
      * field bundle key
      */
