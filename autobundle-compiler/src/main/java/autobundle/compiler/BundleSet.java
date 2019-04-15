@@ -1,6 +1,7 @@
 package autobundle.compiler;
 
 import com.google.common.collect.ImmutableList;
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
@@ -16,35 +17,6 @@ import javax.annotation.Nullable;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
-
-import autobundle.annotation.BooleanArrayValue;
-import autobundle.annotation.BooleanValue;
-import autobundle.annotation.ByteArrayValue;
-import autobundle.annotation.ByteValue;
-import autobundle.annotation.CharArrayValue;
-import autobundle.annotation.CharSequenceArrayListValue;
-import autobundle.annotation.CharSequenceArrayValue;
-import autobundle.annotation.CharSequenceValue;
-import autobundle.annotation.CharValue;
-import autobundle.annotation.DoubleArrayValue;
-import autobundle.annotation.DoubleValue;
-import autobundle.annotation.FloatArrayValue;
-import autobundle.annotation.FloatValue;
-import autobundle.annotation.IntArrayValue;
-import autobundle.annotation.IntValue;
-import autobundle.annotation.IntegerArrayListValue;
-import autobundle.annotation.LongArrayValue;
-import autobundle.annotation.LongValue;
-import autobundle.annotation.ParcelableArrayListValue;
-import autobundle.annotation.ParcelableArrayValue;
-import autobundle.annotation.ParcelableValue;
-import autobundle.annotation.SerializableValue;
-import autobundle.annotation.ShortArrayValue;
-import autobundle.annotation.ShortValue;
-import autobundle.annotation.SparseParcelableArrayValue;
-import autobundle.annotation.StringArrayListValue;
-import autobundle.annotation.StringArrayValue;
-import autobundle.annotation.StringValue;
 
 import static com.google.auto.common.MoreElements.getPackage;
 import static javax.lang.model.element.Modifier.FINAL;
@@ -111,6 +83,8 @@ class BundleSet {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(METHOD_BIND)
                 .addAnnotation(UI_THREAD)
                 .addAnnotation(Override.class)
+                //Unchecked cast
+                .addAnnotation(AnnotationSpec.builder(SuppressWarnings.class).addMember("value", "$S", "unchecked").build())
                 .addModifiers(PUBLIC)
                 .addParameter(TypeName.OBJECT, "object")
                 .addParameter(BUNDLE, "bundle");
@@ -126,66 +100,28 @@ class BundleSet {
 
         for (FieldBundleBinding bundleBinding : bundleBindings) {
 
-            if (bundleBinding.annotationClass == IntValue.class) {
+            if (bundleBinding.type == TypeName.INT) {
                 addPrimitiveStatement(methodBuilder, bundleBinding, "getInt");
-            } else if (bundleBinding.annotationClass == LongValue.class) {
+            } else if (bundleBinding.type == TypeName.LONG) {
                 addPrimitiveStatement(methodBuilder, bundleBinding, "getLong");
-            } else if (bundleBinding.annotationClass == ByteValue.class) {
+            } else if (bundleBinding.type == TypeName.BYTE) {
                 addPrimitiveStatement(methodBuilder, bundleBinding, "getByte");
-            } else if (bundleBinding.annotationClass == ShortValue.class) {
+            } else if (bundleBinding.type == TypeName.SHORT) {
                 addPrimitiveStatement(methodBuilder, bundleBinding, "getShort");
-            } else if (bundleBinding.annotationClass == DoubleValue.class) {
+            } else if (bundleBinding.type == TypeName.DOUBLE) {
                 addPrimitiveStatement(methodBuilder, bundleBinding, "getDouble");
-            } else if (bundleBinding.annotationClass == BooleanValue.class) {
+            } else if (bundleBinding.type == TypeName.BOOLEAN) {
                 addPrimitiveStatement(methodBuilder, bundleBinding, "getBoolean");
-            } else if (bundleBinding.annotationClass == FloatValue.class) {
+            } else if (bundleBinding.type == TypeName.FLOAT) {
                 addPrimitiveStatement(methodBuilder, bundleBinding, "getFloat");
-            } else if (bundleBinding.annotationClass == CharValue.class) {
+            } else if (bundleBinding.type == TypeName.CHAR) {
                 addPrimitiveStatement(methodBuilder, bundleBinding, "getChar");
-            } else if (bundleBinding.annotationClass == StringValue.class) {
-                addCompositeStatement(methodBuilder, bundleBinding, "getString");
-            } else if (bundleBinding.annotationClass == CharSequenceValue.class) {
-                addCompositeStatement(methodBuilder, bundleBinding, "getCharSequence");
-            } else if (bundleBinding.annotationClass == IntArrayValue.class) {
-                addCompositeStatement(methodBuilder, bundleBinding, "getIntArray");
-            } else if (bundleBinding.annotationClass == BooleanArrayValue.class) {
-                addCompositeStatement(methodBuilder, bundleBinding, "getBooleanArray");
-            } else if (bundleBinding.annotationClass == CharArrayValue.class) {
-                addCompositeStatement(methodBuilder, bundleBinding, "getCharArray");
-            } else if (bundleBinding.annotationClass == CharSequenceArrayValue.class) {
-                addCompositeStatement(methodBuilder, bundleBinding, "getCharSequenceArray");
-            } else if (bundleBinding.annotationClass == DoubleArrayValue.class) {
-                addCompositeStatement(methodBuilder, bundleBinding, "getDoubleArray");
-            } else if (bundleBinding.annotationClass == FloatArrayValue.class) {
-                addCompositeStatement(methodBuilder, bundleBinding, "getFloatArray");
-            } else if (bundleBinding.annotationClass == ShortArrayValue.class) {
-                addCompositeStatement(methodBuilder, bundleBinding, "getShortArray");
-            } else if (bundleBinding.annotationClass == ByteArrayValue.class) {
-                addCompositeStatement(methodBuilder, bundleBinding, "getByteArray");
-            } else if (bundleBinding.annotationClass == LongArrayValue.class) {
-                addCompositeStatement(methodBuilder, bundleBinding, "getLongArray");
-            } else if (bundleBinding.annotationClass == ParcelableArrayValue.class) {
-                addCompositeStatement(methodBuilder, bundleBinding, "getParcelableArray");
-            } else if (bundleBinding.annotationClass == SparseParcelableArrayValue.class) {
-                addCompositeStatement(methodBuilder, bundleBinding, "getSparseParcelableArray");
-            } else if (bundleBinding.annotationClass == StringArrayValue.class) {
-                addCompositeStatement(methodBuilder, bundleBinding, "getStringArray");
-            } else if (bundleBinding.annotationClass == CharSequenceArrayListValue.class) {
-                addCompositeStatement(methodBuilder, bundleBinding, "getCharSequenceArrayList");
-            } else if (bundleBinding.annotationClass == IntegerArrayListValue.class) {
-                addCompositeStatement(methodBuilder, bundleBinding, "getIntegerArrayList");
-            } else if (bundleBinding.annotationClass == ParcelableArrayListValue.class) {
-                addCompositeStatement(methodBuilder, bundleBinding, "getParcelableArrayList");
-            } else if (bundleBinding.annotationClass == StringArrayListValue.class) {
-                addCompositeStatement(methodBuilder, bundleBinding, "getStringArrayList");
-            } else if (bundleBinding.annotationClass == ParcelableValue.class) {
-                addCompositeStatement(methodBuilder, bundleBinding, "getParcelable");
-            } else if (bundleBinding.annotationClass == SerializableValue.class) {
-                methodBuilder.addStatement("target.$L =($T) bundle.getSerializable($S)", bundleBinding.name, bundleBinding.type, bundleBinding.key);
+            } else {
+                methodBuilder.addStatement("target.$L =($T) bundle.get($S)", bundleBinding.name, bundleBinding.type, bundleBinding.key);
                 if (bundleBinding.required) {
                     methodBuilder.beginControlFlow("if (target." + bundleBinding.name + " == null)");
                     methodBuilder.addStatement(
-                            "throw new $T(\"Required the field '$L'"
+                            "throw new $T(\"The required field '$L'"
                                     + " with key '$L'"
                                     + " is null, in class '\" + $T.class.getName() + \"' ."
                                     + " If this field is optional remove '@Required' annotation.\") ",
@@ -208,19 +144,6 @@ class BundleSet {
         methodBuilder.addStatement("$L", builder.build());
     }
 
-    private void addCompositeStatement(MethodSpec.Builder methodBuilder, FieldBundleBinding bundleBinding, String getMethodName) {
-        methodBuilder.addStatement("target.$L = bundle.$L($S)", bundleBinding.name, getMethodName, bundleBinding.key);
-        if (bundleBinding.required) {
-            methodBuilder.beginControlFlow("if (target." + bundleBinding.name + " == null)");
-            methodBuilder.addStatement(
-                    "throw new $T(\"Required the field '$L'"
-                            + " with key '$L'"
-                            + " is null, in class '\" + $T.class.getName() + \"' ."
-                            + " If this field is optional remove '@Required' annotation.\") ",
-                    NULLPOINTEREXCEPTION, bundleBinding.name, bundleBinding.key, targetTypeName);
-            methodBuilder.endControlFlow();
-        }
-    }
 
     private String getDefaultValue(FieldBundleBinding bundleBinding) {
         return "target." + bundleBinding.name;
