@@ -7,18 +7,9 @@ import android.util.SparseArray;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import autobundle.annotation.Box;
 import autobundle.annotation.BundleFlag;
-import autobundle.annotation.IntArrayValue;
-import autobundle.annotation.IntValue;
-import autobundle.annotation.ParcelableArrayListValue;
-import autobundle.annotation.ParcelableArrayValue;
-import autobundle.annotation.ParcelableValue;
 import autobundle.annotation.Required;
-import autobundle.annotation.SerializableValue;
-import autobundle.annotation.SparseParcelableArrayValue;
-import autobundle.annotation.StringArrayListValue;
-import autobundle.annotation.StringArrayValue;
-import autobundle.annotation.StringValue;
 
 /**
  * 创建时间：2019/4/10
@@ -27,31 +18,32 @@ import autobundle.annotation.StringValue;
  */
 public interface BundleService {
     @BundleFlag(0)
-    Bundle getLogin(@Required @StringValue("loginName") String loginName,
-                    @Required @StringValue("password") String password);
+    Bundle getLogin(@Required @Box("loginName") String loginName,
+                    @Required @Box("password") String password);
 
     @BundleFlag(1)
-    Bundle getInt(@IntValue("_int") int value);
+    Bundle getInt(@Box("int") int value);
 
     @BundleFlag(2)
-    Bundle getString(@StringValue("_String") String value);
+    Bundle getString(@Box("string") String value);
 
     @BundleFlag(3)
-    Bundle getIntArray(@IntArrayValue("_intArray") int[] value);
+    Bundle getIntArray(@Box("intArray") int[][] value);
 
-    Bundle getStringArray(@StringArrayValue("_StringArray") String[] value);
+    Bundle getStringArray(@Box("stringArray") String[] value);
 
-    Bundle getParcelableArray(@ParcelableArrayValue("_ParcelableArray") Parcelable[] value);
+    Bundle getParcelable(@Box("parcelable") Parcelable value);
 
-    Bundle getSparseParcelableArray(@Required @SparseParcelableArrayValue("_SparseParcelableArray")
+    Bundle getParcelableArray(@Box("parcelableArray") Parcelable[] value);
+
+    Bundle getSparseParcelableArray(@Box("sparseParcelableArray")
                                             SparseArray<? extends Parcelable> value);
 
-    Bundle getStringArrayList(@Required @StringArrayListValue("_StringArrayListValue") ArrayList<String> value);
+    Bundle getStringArrayList(@Box("stringArrayList") ArrayList<String> value);
 
-    Bundle getParcelableArrayList(@ParcelableArrayListValue("_ParcelableArrayList") ArrayList<? extends Parcelable> value);
+    Bundle getParcelableArrayList(@Box("parcelableArrayList") ArrayList<? extends Parcelable> value);
 
-    Bundle getParcelable(@ParcelableValue("_ParcelableArrayList") Parcelable value);
 
-    Bundle getSerializable(@SerializableValue("_SerializableValue") Serializable value);
+    Bundle getSerializable(@Box("serializable") Serializable value);
 
 }

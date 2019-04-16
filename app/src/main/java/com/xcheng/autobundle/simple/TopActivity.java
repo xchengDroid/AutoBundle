@@ -6,22 +6,21 @@ import android.support.v7.app.AppCompatActivity;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-import autobundle.annotation.IntValue;
+import autobundle.annotation.Unbox;
 
 public class TopActivity extends AppCompatActivity {
 
-    @IntValue("121")
-    int sex;
-
-
+    @Unbox("testParent")
+    int testParent;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
     }
 
-//    public static void main(String[] args) {
-//        Type type = getSuperclassTypeParameter(new HashMap<String,String>() {
+    public static void main(String[] args) {
+//        Type type = getSuperclassTypeParameter(new ArrayList<String[]>() {
 //        }.getClass());
 //
 //
@@ -38,8 +37,8 @@ public class TopActivity extends AppCompatActivity {
 //            throw new IllegalStateException("@HeaderMap keys must be of type String: " + keyType);
 //        }
 //        Type valueType = Utils.getParameterUpperBound(1, parameterizedType);
-//
-//    }
+
+    }
 
     public static Type getSuperclassTypeParameter(Class<?> subclass) {
         Type superclass = subclass.getGenericSuperclass();
