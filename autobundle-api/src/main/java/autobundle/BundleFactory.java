@@ -218,7 +218,10 @@ final class BundleFactory {
                         //putStringArrayList
                         //putIntegerArrayList
                         return ParameterHandler.getSerializable(key, required);
-                    } else if (CharSequence.class.isAssignableFrom(elementClass)) {
+                    } else if (CharSequence.class == elementClass) {
+                        //note:    if  -> ArrayList<String> stringList = new ArrayList<>();
+                        //not allowed  -> bundle.putCharSequenceArrayList("strings",stringList);
+                        //so must use  == ;can not use isAssignableFrom()
                         //putCharSequenceArrayList
                         return ParameterHandler.getCharSequenceArrayList(key, required);
                     }
