@@ -17,6 +17,7 @@ package autobundle;
 
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.SparseArray;
@@ -30,36 +31,9 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import autobundle.annotation.BooleanArrayValue;
-import autobundle.annotation.BooleanValue;
+import autobundle.annotation.Box;
 import autobundle.annotation.BundleFlag;
-import autobundle.annotation.ByteArrayValue;
-import autobundle.annotation.ByteValue;
-import autobundle.annotation.CharArrayValue;
-import autobundle.annotation.CharSequenceArrayListValue;
-import autobundle.annotation.CharSequenceArrayValue;
-import autobundle.annotation.CharSequenceValue;
-import autobundle.annotation.CharValue;
-import autobundle.annotation.DoubleArrayValue;
-import autobundle.annotation.DoubleValue;
-import autobundle.annotation.FloatArrayValue;
-import autobundle.annotation.FloatValue;
-import autobundle.annotation.IntArrayValue;
-import autobundle.annotation.IntValue;
-import autobundle.annotation.IntegerArrayListValue;
-import autobundle.annotation.LongArrayValue;
-import autobundle.annotation.LongValue;
-import autobundle.annotation.ParcelableArrayListValue;
-import autobundle.annotation.ParcelableArrayValue;
-import autobundle.annotation.ParcelableValue;
 import autobundle.annotation.Required;
-import autobundle.annotation.SerializableValue;
-import autobundle.annotation.ShortArrayValue;
-import autobundle.annotation.ShortValue;
-import autobundle.annotation.SparseParcelableArrayValue;
-import autobundle.annotation.StringArrayListValue;
-import autobundle.annotation.StringArrayValue;
-import autobundle.annotation.StringValue;
 
 import static autobundle.Utils.parameterError;
 
@@ -170,38 +144,14 @@ final class BundleFactory {
 
         private ParameterHandler<?> parseParameter(
                 int p, Type parameterType, @Nullable Annotation[] annotations) {
-            ParameterHandler<?> result = null;
-            if (annotations != null) {
-                for (Annotation annotation : annotations) {
-                    ParameterHandler<?> annotationAction =
-                            parseParameterAnnotation(p, parameterType, annotation, required(annotations));
-                    if (annotationAction == null) {
-                        continue;
-                    }
-
-                    if (result != null) {
-                        throw parameterError(method, p,
-                                "Multiple AutoBundle annotations found, only one allowed.");
-                    }
-
-                    result = annotationAction;
-                }
+            // 同一个注解不能多次使用在参数上
+            Box boxAnnotation = findBoxAnnotation(annotations);
+            if (boxAnnotation == null) {
+                throw parameterError(method, p, "@%s annotation not found.", Box.class.getSimpleName());
             }
-
-            if (result == null) {
-                throw parameterError(method, p, "No AutoBundle annotation found.");
-            }
-
-            return result;
-        }
-
-        @Nullable
-        private ParameterHandler<?> parseParameterAnnotation(
-                int p, Type type, Annotation annotation, boolean required) {
-            Class<? extends Annotation> annotationClass = annotation.annotationType();
-
+            boolean required = required(annotations);
             if (AutoBundle.getInstance().debug) {
-                Log.d(AutoBundle.TAG, "Parse " + annotation + " ,required:" + required
+                Log.d(AutoBundle.TAG, "Parse " + boxAnnotation + " ,required:" + required
                         + " \n in parameter #" + (p + 1)
                         + " for method "
                         + method.getDeclaringClass().getSimpleName()
@@ -209,181 +159,115 @@ final class BundleFactory {
                         + method.getName()
                 );
             }
-            // 基础数据类型
-            if (annotation instanceof IntValue) {
-                checkParameterType(annotationClass, type, int.class, p);
-                return ParameterHandler.create(annotationClass, ((IntValue) annotation).value(), required);
-            } else if (annotation instanceof LongValue) {
-                checkParameterType(annotationClass, type, long.class, p);
-                return ParameterHandler.create(annotationClass, ((LongValue) annotation).value(), required);
-            } else if (annotation instanceof DoubleValue) {
-                checkParameterType(annotationClass, type, double.class, p);
-                return ParameterHandler.create(annotationClass, ((DoubleValue) annotation).value(), required);
-            } else if (annotation instanceof FloatValue) {
-                checkParameterType(annotationClass, type, float.class, p);
-                return ParameterHandler.create(annotationClass, ((FloatValue) annotation).value(), required);
-            } else if (annotation instanceof ByteValue) {
-                checkParameterType(annotationClass, type, byte.class, p);
-                return ParameterHandler.create(annotationClass, ((ByteValue) annotation).value(), required);
-            } else if (annotation instanceof ShortValue) {
-                checkParameterType(annotationClass, type, short.class, p);
-                return ParameterHandler.create(annotationClass, ((ShortValue) annotation).value(), required);
-            } else if (annotation instanceof CharValue) {
-                checkParameterType(annotationClass, type, char.class, p);
-                return ParameterHandler.create(annotationClass, ((CharValue) annotation).value(), required);
-            } else if (annotation instanceof BooleanValue) {
-                checkParameterType(annotationClass, type, boolean.class, p);
-                return ParameterHandler.create(annotationClass, ((BooleanValue) annotation).value(), required);
-            }
-
-            // 复合数据类型
-            else if (annotation instanceof StringValue) {
-                checkParameterType(annotationClass, type, String.class, p);
-                return ParameterHandler.create(annotationClass, ((StringValue) annotation).value(), required);
-            } else if (annotation instanceof CharSequenceValue) {
-                checkParameterType(annotationClass, type, CharSequence.class, p);
-                return ParameterHandler.create(annotationClass, ((CharSequenceValue) annotation).value(), required);
-            } else if (annotation instanceof SerializableValue) {
-                checkParameterType(annotationClass, type, Serializable.class, p);
-                return ParameterHandler.create(annotationClass, ((SerializableValue) annotation).value(), required);
-            } else if (annotation instanceof ParcelableValue) {
-                checkParameterType(annotationClass, type, Parcelable.class, p);
-                return ParameterHandler.create(annotationClass, ((ParcelableValue) annotation).value(), required);
-            }
-
-            // 基础数据类型数组
-            else if (annotation instanceof BooleanArrayValue) {
-                checkParameterType(annotationClass, type, boolean[].class, p);
-                return ParameterHandler.create(annotationClass, ((BooleanArrayValue) annotation).value(), required);
-            } else if (annotation instanceof ByteArrayValue) {
-                checkParameterType(annotationClass, type, byte[].class, p);
-                return ParameterHandler.create(annotationClass, ((ByteArrayValue) annotation).value(), required);
-            } else if (annotation instanceof CharArrayValue) {
-                checkParameterType(annotationClass, type, char[].class, p);
-                return ParameterHandler.create(annotationClass, ((CharArrayValue) annotation).value(), required);
-            } else if (annotation instanceof DoubleArrayValue) {
-                checkParameterType(annotationClass, type, double[].class, p);
-                return ParameterHandler.create(annotationClass, ((DoubleArrayValue) annotation).value(), required);
-            } else if (annotation instanceof FloatArrayValue) {
-                checkParameterType(annotationClass, type, float[].class, p);
-                return ParameterHandler.create(annotationClass, ((FloatArrayValue) annotation).value(), required);
-            } else if (annotation instanceof IntArrayValue) {
-                checkParameterType(annotationClass, type, int[].class, p);
-                return ParameterHandler.create(annotationClass, ((IntArrayValue) annotation).value(), required);
-            } else if (annotation instanceof LongArrayValue) {
-                checkParameterType(annotationClass, type, long[].class, p);
-                return ParameterHandler.create(annotationClass, ((LongArrayValue) annotation).value(), required);
-            } else if (annotation instanceof ShortArrayValue) {
-                checkParameterType(annotationClass, type, short[].class, p);
-                return ParameterHandler.create(annotationClass, ((ShortArrayValue) annotation).value(), required);
-            }
-
-            // 复合数据类型数组
-            else if (annotation instanceof ParcelableArrayValue) {
-                // Parcelable[] value
-                checkParameterType(annotationClass, type, Parcelable[].class, p);
-                return ParameterHandler.create(annotationClass, ((ParcelableArrayValue) annotation).value(), required);
-            } else if (annotation instanceof CharSequenceArrayValue) {
-                // CharSequence[] value
-                checkParameterType(annotationClass, type, CharSequence[].class, p);
-                return ParameterHandler.create(annotationClass, ((CharSequenceArrayValue) annotation).value(), required);
-            } else if (annotation instanceof StringArrayValue) {
-                //String[] value
-                checkParameterType(annotationClass, type, String[].class, p);
-                return ParameterHandler.create(annotationClass, ((StringArrayValue) annotation).value(), required);
-            } else if (annotation instanceof SparseParcelableArrayValue) {
-                //SparseArray<? extends Parcelable>
-                checkParameterType(annotationClass, type, SparseArray.class, p);
-                Class<?> rawParameterType = Utils.getRawType(type);
-                if (!(type instanceof ParameterizedType)) {
-                    arrayListTypeError(rawParameterType, Parcelable.class, p);
-                }
-                ParameterizedType parameterizedType = (ParameterizedType) type;
-                Class<?> listItemClass = Utils.getRawType(Utils.getParameterUpperBound(0, parameterizedType));
-                //只要任意实现Parcelable接口的子类都可以
-                if (!Parcelable.class.isAssignableFrom(listItemClass)) {
-                    arrayListTypeError(rawParameterType, Parcelable.class, p);
-                }
-                return ParameterHandler.create(annotationClass, ((SparseParcelableArrayValue) annotation).value(), required);
-            }
-            //列表类型ArrayList
-            else if (annotation instanceof CharSequenceArrayListValue) {
-                // ArrayList<CharSequence> value
-                checkParameterType(annotationClass, type, ArrayList.class, p);
-                Class<?> rawParameterType = Utils.getRawType(type);
-                if (!(type instanceof ParameterizedType)) {
-                    arrayListTypeError(rawParameterType, CharSequence.class, p);
-                }
-                ParameterizedType parameterizedType = (ParameterizedType) type;
-                Type listItemType = Utils.getParameterUpperBound(0, parameterizedType);
-
-                //note:    if  -> ArrayList<String> stringList = new ArrayList<>();
-                //not allowed  -> bundle.putCharSequenceArrayList("strings",stringList);
-                //so must use  == ;can not use isAssignableFrom()
-                if (CharSequence.class != listItemType) {
-                    arrayListTypeError(rawParameterType, CharSequence.class, p);
-                }
-                return ParameterHandler.create(annotationClass, ((CharSequenceArrayListValue) annotation).value(), required);
-            } else if (annotation instanceof IntegerArrayListValue) {
-                // ArrayList<Integer> value
-                checkParameterType(annotationClass, type, ArrayList.class, p);
-                Class<?> rawParameterType = Utils.getRawType(type);
-                if (!(type instanceof ParameterizedType)) {
-                    arrayListTypeError(rawParameterType, Integer.class, p);
-                }
-                ParameterizedType parameterizedType = (ParameterizedType) type;
-                Type listItemType = Utils.getParameterUpperBound(0, parameterizedType);
-                if (Integer.class != listItemType) {
-                    arrayListTypeError(rawParameterType, Integer.class, p);
-                }
-                return ParameterHandler.create(annotationClass, ((IntegerArrayListValue) annotation).value(), required);
-            } else if (annotation instanceof ParcelableArrayListValue) {
-                //ArrayList<? extends Parcelable> value
-                checkParameterType(annotationClass, type, ArrayList.class, p);
-                Class<?> rawParameterType = Utils.getRawType(type);
-                if (!(type instanceof ParameterizedType)) {
-                    arrayListTypeError(rawParameterType, Parcelable.class, p);
-                }
-                ParameterizedType parameterizedType = (ParameterizedType) type;
-                Class<?> listItemClass = Utils.getRawType(Utils.getParameterUpperBound(0, parameterizedType));
-                //只要任意实现Parcelable接口的子类都可以
-                if (!Parcelable.class.isAssignableFrom(listItemClass)) {
-                    arrayListTypeError(rawParameterType, Parcelable.class, p);
-                }
-                return ParameterHandler.create(annotationClass, ((ParcelableArrayListValue) annotation).value(), required);
-            } else if (annotation instanceof StringArrayListValue) {
-                //ArrayList<String> value
-                checkParameterType(annotationClass, type, ArrayList.class, p);
-                Class<?> rawParameterType = Utils.getRawType(type);
-                if (!(type instanceof ParameterizedType)) {
-                    arrayListTypeError(rawParameterType, String.class, p);
-                }
-                ParameterizedType parameterizedType = (ParameterizedType) type;
-                Type listItemType = Utils.getParameterUpperBound(0, parameterizedType);
-                if (String.class != listItemType) {
-                    arrayListTypeError(rawParameterType, String.class, p);
-                }
-                return ParameterHandler.create(annotationClass, ((StringArrayListValue) annotation).value(), required);
-            }
-            return null;
+            return parseParameterAnnotation(p, parameterType, boxAnnotation.value(), required(annotations));
         }
 
-
-        private void checkParameterType(Class<? extends Annotation> annotationClass, Type type, Class<?> rightClass, int p) {
-            Class<?> rawType = Utils.getRawType(type);
-            if (!rightClass.isAssignableFrom(rawType)) {
-                // annotation.getClass -->Proxy 动态代理
-                throw parameterError(method, p,
-                        "@" + annotationClass.getSimpleName() + " must be " + rightClass.getSimpleName() + " type.");
+        /**
+         * 静态方法防止匿名内部类持有Builder引用
+         * Serializable.class.isAssignableFrom(AnyClass[].class)==true
+         */
+        @NonNull
+        private ParameterHandler<?> parseParameterAnnotation(int p, Type type, String key, boolean required) {
+            //不带泛型
+            if (type instanceof Class<?>) {
+                Class<?> clazz = (Class<?>) type;
+                if (clazz.isPrimitive()) {
+                    //basic ->8 methods
+                    return ParameterHandler.getSerializable(key, required);
+                } else if (clazz.isArray()) {
+                    // Must be before Serializable
+                    //任意类型的数组都是Serializable 的子类,所以需要检测元素是否可以序列化
+                    Class<?> elementClass = getComponentType(clazz);
+                    if (elementClass.isPrimitive() ||
+                            Serializable.class.isAssignableFrom(elementClass)) {
+                        //basicArray ->8 methods
+                        //putStringArray
+                        return ParameterHandler.getSerializable(key, required);
+                    } else if (Parcelable.class.isAssignableFrom(elementClass)) {
+                        //putParcelableArray
+                        return ParameterHandler.getParcelableArray(key, required);
+                    } else if (CharSequence.class.isAssignableFrom(elementClass)) {
+                        //putCharSequenceArray
+                        return ParameterHandler.getCharSequenceArray(key, required);
+                    }
+                } else if (ArrayList.class.isAssignableFrom(clazz)) {
+                    arrayListTypeError(clazz, p);
+                } else if (SparseArray.class.isAssignableFrom(clazz)) {
+                    sparseArrayTypeError(clazz, p);
+                } else if (Parcelable.class.isAssignableFrom(clazz)) {
+                    //putParcelable
+                    return ParameterHandler.getParcelable(key, required);
+                } else if (Serializable.class.isAssignableFrom(clazz)) {
+                    // Must be after Array include bundle.putString
+                    //putSerializable
+                    //putString
+                    return ParameterHandler.getSerializable(key, required);
+                } else if (CharSequence.class.isAssignableFrom(clazz)) {
+                    //putCharSequence
+                    return ParameterHandler.getCharSequence(key, required);
+                }
+            } else if (type instanceof ParameterizedType) {
+                Class<?> rawType = Utils.getRawType(type);
+                //只检测第一个泛型
+                Class<?> elementClass = Utils.getRawType(Utils.getParameterUpperBound(0, (ParameterizedType) type));
+                if (ArrayList.class.isAssignableFrom(rawType)) {
+                    if (Parcelable.class.isAssignableFrom(elementClass)) {
+                        //putParcelableArrayList
+                        return ParameterHandler.getParcelableArrayList(key, required);
+                    } else if (Serializable.class.isAssignableFrom(elementClass)) {
+                        //putStringArrayList
+                        //putIntegerArrayList
+                        return ParameterHandler.getSerializable(key, required);
+                    } else if (CharSequence.class.isAssignableFrom(elementClass)) {
+                        //putCharSequenceArrayList
+                        return ParameterHandler.getCharSequenceArrayList(key, required);
+                    }
+                    arrayListTypeError(rawType, p);
+                } else if (SparseArray.class.isAssignableFrom(rawType)) {
+                    if (Parcelable.class.isAssignableFrom(elementClass)) {
+                        //putSparseParcelableArray
+                        return ParameterHandler.getSparseParcelableArray(key, required);
+                    }
+                    sparseArrayTypeError(rawType, p);
+                }
             }
+            throw parameterError(method, p, "'" + type
+                    + "' doesn't support.");
         }
 
-        private void arrayListTypeError(Class<?> rawParameterType, Class<?> rightItemClass, int p) {
+        /**
+         * check {@link Bundle#putStringArrayList(String, ArrayList)}
+         * check {@link Bundle#putIntegerArrayList(String, ArrayList)}
+         * check {@link Bundle#putCharSequenceArrayList(String, ArrayList)}
+         * check {@link Bundle#putSparseParcelableArray(String, SparseArray)}
+         */
+        private void arrayListTypeError(Class<?> rawParameterType, int p) {
+            StringBuilder typeString = new StringBuilder();
+            String rawTypeName = rawParameterType.getSimpleName();
+
+            typeString.append(rawTypeName).append("<String>, ");
+            typeString.append(rawTypeName).append("<Integer>, ");
+            typeString.append(rawTypeName).append("<CharSequence>, ");
+            typeString.append(rawTypeName).append("<? extends Parcelable>, ");
+            typeString.append(rawTypeName).append("<? extends Serializable>");
+
+            throw parameterError(method, p, rawParameterType.getSimpleName()
+                    + " must include generic type \n(e.g., "
+                    + typeString.toString()
+                    + ")");
+        }
+
+        /**
+         * check {@link Bundle#putSparseParcelableArray(String, SparseArray)}
+         */
+        private void sparseArrayTypeError(Class<?> rawParameterType, int p) {
+            StringBuilder typeString = new StringBuilder();
+            String rawTypeName = rawParameterType.getSimpleName();
+            typeString.append(rawTypeName).append("<? extends Parcelable>");
             throw parameterError(method, p, rawParameterType.getSimpleName()
                     + " must include generic type (e.g., "
-                    + rawParameterType.getSimpleName()
-                    + "<" + rightItemClass.getSimpleName() + ">)");
-
+                    + typeString.toString()
+                    + ")");
         }
 
         private static boolean required(@Nullable Annotation[] annotations) {
@@ -395,6 +279,26 @@ final class BundleFactory {
                 }
             }
             return false;
+        }
+
+        private static Box findBoxAnnotation(@Nullable Annotation[] annotations) {
+            if (annotations != null) {
+                for (Annotation annotation : annotations) {
+                    if (annotation instanceof Box) {
+                        return (Box) annotation;
+                    }
+                }
+            }
+            return null;
+        }
+
+        static Class<?> getComponentType(Class<?> clazz) {
+            if (clazz.isArray()) {
+                clazz = clazz.getComponentType();
+                Utils.checkNotNull(clazz, "clazz==null");
+                return getComponentType(clazz);
+            }
+            return clazz;
         }
     }
 }

@@ -344,7 +344,7 @@ public class Utils {
         }
     }
 
-    public static Type getParameterUpperBound(int index, ParameterizedType type) {
+    static Type getParameterUpperBound(int index, ParameterizedType type) {
         Type[] types = type.getActualTypeArguments();
         if (index < 0 || index >= types.length) {
             throw new IllegalArgumentException(
