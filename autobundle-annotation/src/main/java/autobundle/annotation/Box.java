@@ -14,7 +14,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(PARAMETER)
 public @interface Box {
     /**
-     * field bundle key
+     * parameter bundle key
      */
     String value();
 
