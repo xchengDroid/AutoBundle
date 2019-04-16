@@ -172,7 +172,9 @@ final class BundleFactory {
                     } else {
                         Class<?> outElementClass = getOutComponentType(clazz);
                         //任意类型的数组都是Serializable 的子类,所以需要检测元素是否可以序列化
-                        if (Serializable.class.isAssignableFrom(outElementClass)) {
+                        if (Serializable.class.isAssignableFrom(outElementClass)
+                                //基础类型
+                                || outElementClass.isPrimitive()) {
                             return ParameterHandler.getSerializable(key, required);
                         }
                         throw parameterError(method, p, "'" + outElementClass
