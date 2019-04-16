@@ -19,21 +19,15 @@ AutoBundle generates boilerplate code for field binding with ``android.os.Bundle
 In your class which has state from `Bundle`
  (`Activity`, `BroadcastReceiver`, `Service`, `Fragment` or others),
 
-declare fields with
 
- `@IntValue`.  
 
- bundle.putInt() or bundle.getInt()
+ `@Box`
 
- `@BooleanValue` 
+for bundle.putXXX  with parameters
 
- bundle.putBoolean()  or bundle.getBoolean()
+ `@Unbox` 
 
-`@StringVaulue` 
-
- bundle.putString()  or bundle.getString()
-
-…….... have many other annotations for arrays and lists
+ bundle.getXXXX  with fields
 
 `@Required`
 
@@ -80,96 +74,48 @@ if add  this annotation, callback of create Method will get a flag
 ```java
 public class MyActivity extends Activity {
     // field must not be private/protected.
-    @IntValue("_int")
-    int _int;
-    
-    @BooleanValue("_bool")
-    boolean _bool;
-    
-    @ShortValue("_short")
-    short _short;
-    
-    @ByteValue("_byte")
-    byte _byte;
-    
-    @CharValue("_char")
-    char _char;
-
-    @LongValue("_long")
-    long _long;
-    
-    @DoubleValue("_double")
-    double _double;
-    
-    @FloatValue("_float")
-    float _float;
-    
-    @StringValue("_string")
-    String _string;
-    
-    @CharSequenceValue("_CharSequence")
-    CharSequence _CharSequence;
-
-    @IntArrayValue("_IntArrayValue")
-    int[] _IntArrayValue;
-    
-    @BooleanArrayValue(value = "_BooleanArrayValue")
-    boolean[] _BooleanArrayValue;
-    
-    @CharArrayValue("_CharArrayValue")
-    char[] _CharArrayValue;
-
-    @CharSequenceArrayValue("_CharSequenceArrayValue")
-    CharSequence[] _CharSequenceArrayValue;
-
-    @DoubleArrayValue("_DoubleArrayValue")
-    double[] _DoubleArrayValue;
-    
-    @FloatArrayValue("_FloatArrayValue")
-    float[] _FloatArrayValue;
-
-    @ShortArrayValue("_ShortArrayValue")
-    short[] _ShortArrayValue;
-
-    @ByteArrayValue("_ByteArrayValue")
-    byte[] _ByteArrayValue;
-
-    @LongArrayValue("_LongArrayValue")
-    long[] _LongArrayValue;
-    
-    @ParcelableArrayValue("_ParcelableArrayValue")
-    Parcelable[] _ParcelableArrayValue;
-
-    @SparseParcelableArrayValue("_SparseParcelableArrayValue")
-    SparseArray<Bundle> _SparseParcelableArrayValue;
-
-    @StringArrayValue("_StringArrayValue")
-    String[] _StringArrayValue;
-
-    @CharSequenceArrayListValue("_CharSequenceArrayListValue")
-    List<CharSequence> _CharSequenceArrayListValue;
-
-    @IntegerArrayListValue("_IntegerArrayListValue")
-    List<Integer> _IntegerArrayListValue;
-
-    @ParcelableArrayListValue("_ParcelableArrayListValue")
-    List<Parcelable> _ParcelableArrayListValue;
-
-    @StringArrayListValue("_StringArrayListValue")
-    ArrayList<String> _StringArrayListValue;
-
-    @ParcelableValue("_ParcelableValue")
-    Bundle _ParcelableValue;
-
     @Required
-    @SerializableValue("_SerializableValue")
-    Map<String, Short> _SerializableValue;
+    @Unbox("loginName")
+    String loginName;
+    @Required
+    @Unbox("password")
+    String password;
+
+    @Unbox("int")
+    int intValue;
+
+    @Unbox("string")
+    String stringValue;
+
+    @Unbox("intArray")
+    int[] intArrayValue;
+
+    @Unbox("stringArray")
+    String[] stringArrayValue;
+
+    @Unbox("parcelable")
+    Parcelable ParcelableValue;
+
+    @Unbox("parcelableArray")
+    Parcelable[] parcelableArrayValue;
+
+    @Unbox("sparseParcelableArray")
+    SparseArray<? extends Parcelable> sparseParcelableArrayValue;
+
+    @Unbox("stringArrayList")
+    List<String> stringArrayListValue;
+
+    @Unbox("parcelableArrayList")
+    List<? extends Parcelable> parcelableArrayListValue;
+
+    @Unbox("serializable")
+    Serializable serializableValue;
 }
 ```
 
 #### how to bind fields from bundle
 
-```java
+```
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -186,33 +132,32 @@ public class MyActivity extends Activity {
 ```java
 public interface BundleService {
     @BundleFlag(0)
-    Bundle getLogin(@Required @StringValue("loginName") String loginName,
-                    @Required @StringValue("password") String password);
+    Bundle getLogin(@Required @Box("loginName") String loginName,
+                    @Required @Box("password") String password);
 
     @BundleFlag(1)
-    Bundle getInt(@IntValue("_int") int value);
+    Bundle getInt(@Box("int") int value);
 
     @BundleFlag(2)
-    Bundle getString(@StringValue("_String") String value);
+    Bundle getString(@Box("string") String value);
 
     @BundleFlag(3)
-    Bundle getIntArray(@IntArrayValue("_intArray") int[] value);
+    Bundle getIntArray(@Box("intArray") int[][] value);
 
-    Bundle getStringArray(@StringArrayValue("_StringArray") String[] value);
+    Bundle getStringArray(@Box("stringArray") String[] value);
 
-    Bundle getParcelableArray(@ParcelableArrayValue("_ParcelableArray") Parcelable[] value);
+    Bundle getParcelable(@Box("parcelable") Parcelable value);
 
-    Bundle getSparseParcelableArray(@Required @SparseParcelableArrayValue("_SparseParcelableArray")
+    Bundle getParcelableArray(@Box("parcelableArray") Parcelable[] value);
+
+    Bundle getSparseParcelableArray(@Box("sparseParcelableArray")
                                             SparseArray<? extends Parcelable> value);
 
-    Bundle getStringArrayList(@Required @StringArrayListValue("_StringArrayListValue") ArrayList<String> value);
+    Bundle getStringArrayList(@Box("stringArrayList") ArrayList<String> value);
 
-    Bundle getParcelableArrayList(@ParcelableArrayListValue("_ParcelableArrayList") ArrayList<? extends Parcelable> value);
+    Bundle getParcelableArrayList(@Box("parcelableArrayList") ArrayList<? extends Parcelable> value);
 
-    Bundle getParcelable(@ParcelableValue("_ParcelableArrayList") Parcelable value);
-
-    Bundle getSerializable(@SerializableValue("_SerializableValue") Serializable value);
-
+    Bundle getSerializable(@Box("serializable") Serializable value);
 }
 ```
 
@@ -222,7 +167,7 @@ public interface BundleService {
 
 ```java
 //second step: you can crate Bundle like retrofit
-  Bundle loginBundle = AutoBundle.getInstance()
+   Bundle loginBundle = AutoBundle.getInstance()
                 .create(BundleService.class)
                 .getLogin("JackWharton","123456");
 
@@ -246,8 +191,8 @@ In target class, Call binding method in ``onCreate``.
 
 ```groovy
 dependencies {
-    implementation 'com.xcheng:autobundle-api:1.0.0'
-    annotationProcessor 'com.xcheng:autobundle-compiler:1.0.0'
+    implementation 'com.xcheng:autobundle-api:1.1.0'
+    annotationProcessor 'com.xcheng:autobundle-compiler:1.1.0'
 }
 ```
 
