@@ -162,7 +162,7 @@ final class BundleFactory {
                     Class<?> elementClass = clazz.getComponentType();
                     assert elementClass != null;
                     if (elementClass.isPrimitive()) {
-                        return ParameterHandler.getBasicArray(elementClass, key, required);
+                        return ParameterHandler.getBasicArray(clazz, key, required);
                     } else if (String.class.isAssignableFrom(elementClass)) {
                         return ParameterHandler.getStringArray(key, required);
                     } else if (Parcelable.class.isAssignableFrom(elementClass)) {
