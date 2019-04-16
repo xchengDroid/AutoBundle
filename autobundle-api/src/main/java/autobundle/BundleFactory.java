@@ -198,21 +198,22 @@ final class BundleFactory {
                 }
             } else if (type instanceof ParameterizedType) {
                 Class<?> rawType = Utils.getRawType(type);
-                //只检测第一个泛型
                 Class<?> elementClass = Utils.getRawType(Utils.getParameterUpperBound(0, (ParameterizedType) type));
                 if (ArrayList.class.isAssignableFrom(rawType)) {
-                    //note:    if  -> ArrayList<String> stringList = new ArrayList<>();
-                    //not allowed  -> bundle.putCharSequenceArrayList("strings",stringList);
-                    //so must use  == ;can not use isAssignableFrom()
-                    if (Parcelable.class.isAssignableFrom(elementClass)) {
-                        return ParameterHandler.getParcelableArrayList(key, required);
-                    } else if (elementClass == String.class) {
+                    if (elementClass == String.class) {
+                        //note:    if  -> ArrayList<String> stringList = new ArrayList<>();
+                        //not allowed  -> bundle.putCharSequenceArrayList("strings",stringList);
+                        //so must use  == ;can not use isAssignableFrom()
                         return ParameterHandler.getStringArrayList(key, required);
+                    } else if (Parcelable.class.isAssignableFrom(elementClass)) {
+                        //只检测第一个泛型是否 implements Parcelable
+                        return ParameterHandler.getParcelableArrayList(key, required);
                     } else if (elementClass == Integer.class) {
                         return ParameterHandler.getIntegerArrayList(key, required);
                     } else if (elementClass == CharSequence.class) {
                         return ParameterHandler.getCharSequenceArrayList(key, required);
                     } else if (Serializable.class.isAssignableFrom(elementClass)) {
+                        //只检测第一个泛型是否 implements Serializable
                         // put any Serializable object
                         return ParameterHandler.getSerializable(key, required);
                     }
