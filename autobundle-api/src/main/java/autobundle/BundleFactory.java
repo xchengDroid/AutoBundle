@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2015 Square, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package autobundle;
 
 import android.os.Bundle;
@@ -163,7 +148,6 @@ final class BundleFactory {
         }
 
         /**
-         * 静态方法防止匿名内部类持有Builder引用
          * Serializable.class.isAssignableFrom(AnyClass[].class)==true
          */
         @NonNull
@@ -172,63 +156,67 @@ final class BundleFactory {
             if (type instanceof Class<?>) {
                 Class<?> clazz = (Class<?>) type;
                 if (clazz.isPrimitive()) {
-                    //basic ->8 methods
-                    return ParameterHandler.getSerializable(key, required);
+                    return ParameterHandler.getBasic(clazz, key, required);
                 } else if (clazz.isArray()) {
-                    // Must be before Serializable
-                    //任意类型的数组都是Serializable 的子类,所以需要检测元素是否可以序列化
-                    Class<?> elementClass = getComponentType(clazz);
-                    if (elementClass.isPrimitive() ||
-                            Serializable.class.isAssignableFrom(elementClass)) {
-                        //basicArray ->8 methods
-                        //putStringArray
-                        return ParameterHandler.getSerializable(key, required);
+                    // Must be before Serializable ->任意类型的数组都是Serializable 的子类,所以需要检测元素是否可以序列化
+                    Class<?> elementClass = clazz.getComponentType();
+                    assert elementClass != null;
+                    if (elementClass.isPrimitive()) {
+                        return ParameterHandler.getBasicArray(elementClass, key, required);
+                    } else if (String.class.isAssignableFrom(elementClass)) {
+                        return ParameterHandler.getStringArray(key, required);
                     } else if (Parcelable.class.isAssignableFrom(elementClass)) {
-                        //putParcelableArray
                         return ParameterHandler.getParcelableArray(key, required);
                     } else if (CharSequence.class.isAssignableFrom(elementClass)) {
-                        //putCharSequenceArray
                         return ParameterHandler.getCharSequenceArray(key, required);
+                    } else {
+                        Class<?> outElementClass = getOutComponentType(clazz);
+                        //任意类型的数组都是Serializable 的子类,所以需要检测元素是否可以序列化
+                        if (Serializable.class.isAssignableFrom(outElementClass)) {
+                            return ParameterHandler.getSerializable(key, required);
+                        }
+                        throw parameterError(method, p, "'" + outElementClass
+                                + "' must implements Serializable.");
                     }
+                } else if (String.class.isAssignableFrom(clazz)) {
+                    return ParameterHandler.getString(key, required);
+                } else if (Parcelable.class.isAssignableFrom(clazz)) {
+                    return ParameterHandler.getParcelable(key, required);
+                } else if (CharSequence.class.isAssignableFrom(clazz)) {
+                    return ParameterHandler.getCharSequence(key, required);
                 } else if (ArrayList.class.isAssignableFrom(clazz)) {
                     arrayListTypeError(clazz, p);
                 } else if (SparseArray.class.isAssignableFrom(clazz)) {
                     sparseArrayTypeError(clazz, p);
-                } else if (Parcelable.class.isAssignableFrom(clazz)) {
-                    //putParcelable
-                    return ParameterHandler.getParcelable(key, required);
                 } else if (Serializable.class.isAssignableFrom(clazz)) {
                     // Must be after Array include bundle.putString
                     //putSerializable
                     //putString
                     return ParameterHandler.getSerializable(key, required);
-                } else if (CharSequence.class.isAssignableFrom(clazz)) {
-                    //putCharSequence
-                    return ParameterHandler.getCharSequence(key, required);
                 }
             } else if (type instanceof ParameterizedType) {
                 Class<?> rawType = Utils.getRawType(type);
                 //只检测第一个泛型
                 Class<?> elementClass = Utils.getRawType(Utils.getParameterUpperBound(0, (ParameterizedType) type));
                 if (ArrayList.class.isAssignableFrom(rawType)) {
+                    //note:    if  -> ArrayList<String> stringList = new ArrayList<>();
+                    //not allowed  -> bundle.putCharSequenceArrayList("strings",stringList);
+                    //so must use  == ;can not use isAssignableFrom()
                     if (Parcelable.class.isAssignableFrom(elementClass)) {
-                        //putParcelableArrayList
                         return ParameterHandler.getParcelableArrayList(key, required);
-                    } else if (Serializable.class.isAssignableFrom(elementClass)) {
-                        //putStringArrayList
-                        //putIntegerArrayList
-                        return ParameterHandler.getSerializable(key, required);
-                    } else if (CharSequence.class == elementClass) {
-                        //note:    if  -> ArrayList<String> stringList = new ArrayList<>();
-                        //not allowed  -> bundle.putCharSequenceArrayList("strings",stringList);
-                        //so must use  == ;can not use isAssignableFrom()
-                        //putCharSequenceArrayList
+                    } else if (elementClass == String.class) {
+                        return ParameterHandler.getStringArrayList(key, required);
+                    } else if (elementClass == Integer.class) {
+                        return ParameterHandler.getIntegerArrayList(key, required);
+                    } else if (elementClass == CharSequence.class) {
                         return ParameterHandler.getCharSequenceArrayList(key, required);
+                    } else if (Serializable.class.isAssignableFrom(elementClass)) {
+                        // put any Serializable object
+                        return ParameterHandler.getSerializable(key, required);
                     }
                     arrayListTypeError(rawType, p);
                 } else if (SparseArray.class.isAssignableFrom(rawType)) {
                     if (Parcelable.class.isAssignableFrom(elementClass)) {
-                        //putSparseParcelableArray
                         return ParameterHandler.getSparseParcelableArray(key, required);
                     }
                     sparseArrayTypeError(rawType, p);
@@ -295,11 +283,14 @@ final class BundleFactory {
             return null;
         }
 
-        static Class<?> getComponentType(Class<?> clazz) {
+        /**
+         * 获取最外层数组类型 如 String[][] 获取String
+         */
+        static Class<?> getOutComponentType(Class<?> clazz) {
             if (clazz.isArray()) {
                 clazz = clazz.getComponentType();
                 Utils.checkNotNull(clazz, "clazz==null");
-                return getComponentType(clazz);
+                return getOutComponentType(clazz);
             }
             return clazz;
         }
