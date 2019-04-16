@@ -191,8 +191,8 @@ In target class, Call binding method in ``onCreate``.
 
 ```groovy
 dependencies {
-    implementation 'com.xcheng:autobundle-api:1.1.0'
-    annotationProcessor 'com.xcheng:autobundle-compiler:1.1.0'
+    implementation 'com.xcheng:autobundle-api:1.2.1'
+    annotationProcessor 'com.xcheng:autobundle-compiler:1.2.1'
 }
 ```
 
