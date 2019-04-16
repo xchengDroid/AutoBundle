@@ -283,7 +283,14 @@ public class AutoBundleProcessor extends AbstractProcessor {
         processingEnv.getMessager().printMessage(kind, message, element);
     }
 
-    //检测是否为某个类的子类
+
+    /**
+     * rawType 检测是否为某个类的子类, typeUtils.isSubtype对泛型处理不一致
+     *
+     * @param typeMirror 被检测的类型
+     * @param otherType  父类
+     * @return true 代表为子类
+     */
     static boolean isSubtypeOfType(TypeMirror typeMirror, String otherType) {
         if (isTypeEqual(typeMirror, otherType)) {
             return true;
