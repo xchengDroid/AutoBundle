@@ -33,7 +33,7 @@ for bundle.putXXX  with parameters
 
 if field or parameter is composite type , add  this annotation will check not null
 
-`@BundFlag`
+`@BundleFlag`
 
 if add  this annotation, callback of create Method will get a flag
 
