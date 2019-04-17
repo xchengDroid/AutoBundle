@@ -136,7 +136,8 @@ final class BundleFactory {
             }
             boolean required = required(annotations);
             if (AutoBundle.getInstance().debug) {
-                Log.d(AutoBundle.TAG, "Parse " + boxAnnotation + " ,required:" + required
+                String boxString = "@" + Box.class.getSimpleName() + "(value=" + boxAnnotation.value() + ")";
+                Log.d(AutoBundle.TAG, "Parse " + boxString + ", required:" + required
                         + " \n in parameter #" + (p + 1)
                         + " for method "
                         + method.getDeclaringClass().getSimpleName()
