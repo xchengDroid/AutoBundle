@@ -187,7 +187,7 @@ final class BundleFactory {
                                 || outElementClass.isPrimitive()) {
                             return ParameterHandler.getSerializable(key, required);
                         }
-                        throw parameterError(method, p, "'" + Utils.typeToString(outElementClass)
+                        throw parameterError(method, p, "Type '" + Utils.typeToString(outElementClass)
                                 + "' must implements Parcelable, CharSequence or Serializable.");
                     }
                 } else if (String.class.isAssignableFrom(clazz)) {
@@ -204,7 +204,7 @@ final class BundleFactory {
                     // Must be after Array include bundle.putString
                     return ParameterHandler.getSerializable(key, required);
                 }
-                throw parameterError(method, p, "'" + Utils.typeToString(clazz)
+                throw parameterError(method, p, "Type '" + Utils.typeToString(clazz)
                         + "' must implements Parcelable, CharSequence or Serializable.");
             } else if (type instanceof ParameterizedType) {
                 Class<?> rawType = Utils.getRawType(type);
@@ -234,7 +234,7 @@ final class BundleFactory {
                     throw sparseArrayTypeError(rawType, p);
                 }
             }
-            throw parameterError(method, p, "'" + Utils.typeToString(type)
+            throw parameterError(method, p, "Type '" + Utils.typeToString(type)
                     + "' doesn't support.");
         }
 
