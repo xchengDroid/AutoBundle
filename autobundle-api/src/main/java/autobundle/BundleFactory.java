@@ -209,32 +209,32 @@ final class BundleFactory {
                         + "' must implements Parcelable, CharSequence or Serializable.");
             } else if (type instanceof ParameterizedType) {
                 Class<?> rawType = Utils.getRawType(type);
-                Type paramType = Utils.getParameterUpperBound(0, (ParameterizedType) type);
-                if (paramType instanceof TypeVariable) {
+                Type elementType = Utils.getParameterUpperBound(0, (ParameterizedType) type);
+                if (elementType instanceof TypeVariable) {
                     throw parameterError(method, p,
-                            "Parameter type must not include a type variable : %s", paramType);
+                            "Parameter type must not include a type variable : %s", elementType);
                 }
-                Class<?> paramClass = Utils.getRawType(paramType);
+                Class<?> elementClass = Utils.getRawType(elementType);
                 if (ArrayList.class.isAssignableFrom(rawType)) {
-                    if (paramClass == String.class) {
+                    if (elementClass == String.class) {
                         //note:    if  -> ArrayList<String> stringList = new ArrayList<>();
                         //not allowed  -> bundle.putCharSequenceArrayList("strings",stringList);
                         //so must use  == ;can not use isAssignableFrom()
                         return ParameterHandler.getStringArrayList(key, required);
-                    } else if (Parcelable.class.isAssignableFrom(paramClass)) {
-                        //检测paramClass是否 implements Parcelable
+                    } else if (Parcelable.class.isAssignableFrom(elementClass)) {
+                        //检测elementClass是否 implements Parcelable
                         return ParameterHandler.getParcelableArrayList(key, required);
-                    } else if (paramClass == Integer.class) {
+                    } else if (elementClass == Integer.class) {
                         return ParameterHandler.getIntegerArrayList(key, required);
-                    } else if (paramClass == CharSequence.class) {
+                    } else if (elementClass == CharSequence.class) {
                         return ParameterHandler.getCharSequenceArrayList(key, required);
-                    } else if (Serializable.class.isAssignableFrom(paramClass)) {
-                        //检测paramClass是否 implements Serializable
+                    } else if (Serializable.class.isAssignableFrom(elementClass)) {
+                        //检测elementClass是否 implements Serializable
                         return ParameterHandler.getSerializable(key, required);
                     }
                     throw arrayListTypeError(rawType, p);
                 } else if (SparseArray.class.isAssignableFrom(rawType)) {
-                    if (Parcelable.class.isAssignableFrom(paramClass)) {
+                    if (Parcelable.class.isAssignableFrom(elementClass)) {
                         return ParameterHandler.getSparseParcelableArray(key, required);
                     }
                     throw sparseArrayTypeError(rawType, p);
