@@ -52,7 +52,7 @@ public class SecondActivity extends TopActivity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_second);
         AutoBundle.getInstance().bind(this);
     }
 }

@@ -28,7 +28,7 @@ public interface BundleService {
     Bundle getString(@Box("string") String value);
 
     @BundleFlag(3)
-    Bundle getIntArray(@Box("intArray") int[][] value);
+    Bundle getIntArray(@Box("intArray") int[] value);
 
     Bundle getStringArray(@Box("stringArray") String[] value);
 
