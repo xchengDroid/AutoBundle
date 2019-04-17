@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.util.SparseArray;
 
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 /**
@@ -24,6 +25,12 @@ abstract class ParameterHandler<T> {
     }
 
     abstract void apply(Bundle bundle, @Nullable T value);
+
+    private static IllegalArgumentException typeUnsupported(Type type) {
+        return new IllegalArgumentException("'" + Utils.typeToString(type)
+                + "' doesn't support.");
+    }
+
 
     static ParameterHandler<?> getBasic(Class<?> clazz, String key, boolean required) {
         //基础数据类型
@@ -84,7 +91,7 @@ abstract class ParameterHandler<T> {
                 }
             };
         }
-        throw Utils.typeUnsupported(clazz);
+        throw typeUnsupported(clazz);
     }
 
     static ParameterHandler<?> getBasicArray(Class<?> clazz, String key, boolean required) {
@@ -154,7 +161,7 @@ abstract class ParameterHandler<T> {
                 }
             };
         }
-        throw Utils.typeUnsupported(clazz);
+        throw typeUnsupported(clazz);
     }
 
     static ParameterHandler<ArrayList<Integer>> getIntegerArrayList(String key, boolean required) {

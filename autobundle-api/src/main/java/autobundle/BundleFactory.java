@@ -234,7 +234,8 @@ final class BundleFactory {
                     throw sparseArrayTypeError(rawType, p);
                 }
             }
-            throw Utils.typeUnsupported(type);
+            throw parameterError(method, p, "'" + Utils.typeToString(type)
+                    + "' doesn't support.");
         }
 
         /**
