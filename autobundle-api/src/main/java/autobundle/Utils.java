@@ -28,6 +28,11 @@ public class Utils {
         // No instances.
     }
 
+    static IllegalArgumentException typeUnsupported(Type type) {
+        return new IllegalArgumentException("'" + typeToString(type)
+                + "' doesn't support.");
+    }
+
     static <T> T checkNotNull(@Nullable T object, String message) {
         if (object == null) {
             throw new NullPointerException(message);

@@ -139,7 +139,7 @@ final class BundleFactory {
             }
             boolean required = required(annotations);
             printParseParameter(p, boxAnnotation, required);
-            return parseParameterAnnotation(p, parameterType, boxAnnotation.value(), required(annotations));
+            return parseParameterAnnotation(p, parameterType, boxAnnotation.value(), required);
         }
 
         private void printParseParameter(int p, Box boxAnnotation, boolean required) {
@@ -187,8 +187,8 @@ final class BundleFactory {
                                 || outElementClass.isPrimitive()) {
                             return ParameterHandler.getSerializable(key, required);
                         }
-                        throw parameterError(method, p, "'" + outElementClass
-                                + "' must implements Serializable.");
+                        throw parameterError(method, p, "'" + Utils.typeToString(outElementClass)
+                                + "' must implements Parcelable, CharSequence or Serializable.");
                     }
                 } else if (String.class.isAssignableFrom(clazz)) {
                     return ParameterHandler.getString(key, required);
@@ -197,13 +197,15 @@ final class BundleFactory {
                 } else if (CharSequence.class.isAssignableFrom(clazz)) {
                     return ParameterHandler.getCharSequence(key, required);
                 } else if (ArrayList.class.isAssignableFrom(clazz)) {
-                    arrayListTypeError(clazz, p);
+                    throw arrayListTypeError(clazz, p);
                 } else if (SparseArray.class.isAssignableFrom(clazz)) {
-                    sparseArrayTypeError(clazz, p);
+                    throw sparseArrayTypeError(clazz, p);
                 } else if (Serializable.class.isAssignableFrom(clazz)) {
                     // Must be after Array include bundle.putString
                     return ParameterHandler.getSerializable(key, required);
                 }
+                throw parameterError(method, p, "'" + Utils.typeToString(clazz)
+                        + "' must implements Parcelable, CharSequence or Serializable.");
             } else if (type instanceof ParameterizedType) {
                 Class<?> rawType = Utils.getRawType(type);
                 Class<?> elementClass = Utils.getRawType(Utils.getParameterUpperBound(0, (ParameterizedType) type));
@@ -224,16 +226,15 @@ final class BundleFactory {
                         //检测elementClass是否 implements Serializable
                         return ParameterHandler.getSerializable(key, required);
                     }
-                    arrayListTypeError(rawType, p);
+                    throw arrayListTypeError(rawType, p);
                 } else if (SparseArray.class.isAssignableFrom(rawType)) {
                     if (Parcelable.class.isAssignableFrom(elementClass)) {
                         return ParameterHandler.getSparseParcelableArray(key, required);
                     }
-                    sparseArrayTypeError(rawType, p);
+                    throw sparseArrayTypeError(rawType, p);
                 }
             }
-            throw parameterError(method, p, "'" + type
-                    + "' doesn't support.");
+            throw Utils.typeUnsupported(type);
         }
 
         /**
@@ -242,7 +243,7 @@ final class BundleFactory {
          * check {@link Bundle#putCharSequenceArrayList(String, ArrayList)}
          * check {@link Bundle#putSparseParcelableArray(String, SparseArray)}
          */
-        private void arrayListTypeError(Class<?> rawParameterType, int p) {
+        private RuntimeException arrayListTypeError(Class<?> rawParameterType, int p) {
             StringBuilder typeString = new StringBuilder();
             String rawTypeName = rawParameterType.getSimpleName();
 
@@ -252,7 +253,7 @@ final class BundleFactory {
             typeString.append(rawTypeName).append("<? extends Parcelable>, ");
             typeString.append(rawTypeName).append("<? extends Serializable>");
 
-            throw parameterError(method, p, rawParameterType.getSimpleName()
+            return parameterError(method, p, rawParameterType.getSimpleName()
                     + " must include generic type \n(e.g., "
                     + typeString.toString()
                     + ")");
@@ -261,11 +262,11 @@ final class BundleFactory {
         /**
          * check {@link Bundle#putSparseParcelableArray(String, SparseArray)}
          */
-        private void sparseArrayTypeError(Class<?> rawParameterType, int p) {
+        private RuntimeException sparseArrayTypeError(Class<?> rawParameterType, int p) {
             StringBuilder typeString = new StringBuilder();
             String rawTypeName = rawParameterType.getSimpleName();
             typeString.append(rawTypeName).append("<? extends Parcelable>");
-            throw parameterError(method, p, rawParameterType.getSimpleName()
+            return parameterError(method, p, rawParameterType.getSimpleName()
                     + " must include generic type (e.g., "
                     + typeString.toString()
                     + ")");
