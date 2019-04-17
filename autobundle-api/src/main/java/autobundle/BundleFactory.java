@@ -148,7 +148,8 @@ final class BundleFactory {
         }
 
         /**
-         * Serializable.class.isAssignableFrom(AnyClass[].class)==true
+         * Strict type checking
+         * note: Serializable.class.isAssignableFrom(AnyClass[].class)==true
          */
         @NonNull
         private ParameterHandler<?> parseParameterAnnotation(int p, Type type, String key, boolean required) {
