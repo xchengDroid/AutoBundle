@@ -27,7 +27,7 @@ abstract class ParameterHandler<T> {
     abstract void apply(Bundle bundle, @Nullable T value);
 
     private static IllegalArgumentException typeUnsupported(Type type) {
-        return new IllegalArgumentException("Type '" + Utils.typeToString(type)
+        return new IllegalArgumentException("'" + Utils.typeToString(type)
                 + "' doesn't support.");
     }
 
