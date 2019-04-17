@@ -192,8 +192,6 @@ final class BundleFactory {
                     sparseArrayTypeError(clazz, p);
                 } else if (Serializable.class.isAssignableFrom(clazz)) {
                     // Must be after Array include bundle.putString
-                    //putSerializable
-                    //putString
                     return ParameterHandler.getSerializable(key, required);
                 }
             } else if (type instanceof ParameterizedType) {
@@ -206,15 +204,14 @@ final class BundleFactory {
                         //so must use  == ;can not use isAssignableFrom()
                         return ParameterHandler.getStringArrayList(key, required);
                     } else if (Parcelable.class.isAssignableFrom(elementClass)) {
-                        //只检测第一个泛型是否 implements Parcelable
+                        //检测elementClass是否 implements Parcelable
                         return ParameterHandler.getParcelableArrayList(key, required);
                     } else if (elementClass == Integer.class) {
                         return ParameterHandler.getIntegerArrayList(key, required);
                     } else if (elementClass == CharSequence.class) {
                         return ParameterHandler.getCharSequenceArrayList(key, required);
                     } else if (Serializable.class.isAssignableFrom(elementClass)) {
-                        //只检测第一个泛型是否 implements Serializable
-                        // put any Serializable object
+                        //检测elementClass是否 implements Serializable
                         return ParameterHandler.getSerializable(key, required);
                     }
                     arrayListTypeError(rawType, p);
