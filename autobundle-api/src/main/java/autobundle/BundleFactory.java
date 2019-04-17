@@ -77,20 +77,24 @@ final class BundleFactory {
             for (OnBundleListener listener : AutoBundle.getInstance().listeners) {
                 listener.onBundling(bundleFlag, handler.key, args[p], handler.required);
             }
-            if (AutoBundle.getInstance().debug) {
-                Log.d(AutoBundle.TAG, "Bundling key: " + handler.key + ", value: " + args[p] + ", required: " + handler.required
-                        + " \n in parameter #" + (p + 1)
-                        + " for method "
-                        + method.getDeclaringClass().getSimpleName()
-                        + "."
-                        + method.getName()
-                );
-            }
+            printInvoke(p, handler, args[p]);
         }
         for (OnBundleListener listener : AutoBundle.getInstance().listeners) {
             listener.onCompleted(bundleFlag, bundle);
         }
         return bundle;
+    }
+
+    private void printInvoke(int p, ParameterHandler<Object> handler, Object arg) {
+        if (AutoBundle.getInstance().debug) {
+            Log.d(AutoBundle.TAG, "Bundling key: " + handler.key + ", value: " + arg + ", required: " + handler.required
+                    + " \n in parameter #" + (p + 1)
+                    + " for method "
+                    + method.getDeclaringClass().getSimpleName()
+                    + "."
+                    + method.getName()
+            );
+        }
     }
 
     /**
@@ -129,12 +133,17 @@ final class BundleFactory {
 
         private ParameterHandler<?> parseParameter(
                 int p, Type parameterType, @Nullable Annotation[] annotations) {
-            // 同一个注解不能多次使用在参数上
             Box boxAnnotation = findBoxAnnotation(annotations);
             if (boxAnnotation == null) {
                 throw parameterError(method, p, "@%s annotation not found.", Box.class.getSimpleName());
             }
             boolean required = required(annotations);
+            printParseParameter(p, boxAnnotation, required);
+            return parseParameterAnnotation(p, parameterType, boxAnnotation.value(), required(annotations));
+        }
+
+        private void printParseParameter(int p, Box boxAnnotation, boolean required) {
+            // annotation.getClass -->class com.sun.proxy.$Proxy 动态代理
             if (AutoBundle.getInstance().debug) {
                 String boxString = "@" + Box.class.getSimpleName() + "(value=" + boxAnnotation.value() + ")";
                 Log.d(AutoBundle.TAG, "Parse " + boxString + ", required:" + required
@@ -145,7 +154,6 @@ final class BundleFactory {
                         + method.getName()
                 );
             }
-            return parseParameterAnnotation(p, parameterType, boxAnnotation.value(), required(annotations));
         }
 
         /**
