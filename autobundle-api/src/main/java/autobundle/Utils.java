@@ -20,9 +20,9 @@ import java.util.NoSuchElementException;
  * 编写人： chengxin
  * 功能描述：
  */
-public class Utils {
+class Utils {
 
-    static final Type[] EMPTY_TYPE_ARRAY = new Type[0];
+    private static final Type[] EMPTY_TYPE_ARRAY = new Type[0];
 
     private Utils() {
         // No instances.
