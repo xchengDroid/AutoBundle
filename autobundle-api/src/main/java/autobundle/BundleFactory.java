@@ -87,7 +87,7 @@ final class BundleFactory {
 
     private void printInvoke(int p, ParameterHandler<Object> handler, Object arg) {
         if (AutoBundle.getInstance().debug) {
-            Log.d(AutoBundle.TAG, "Bundling key: " + handler.key + ", value: " + arg + ", required: " + handler.required
+            Log.d(AutoBundle.TAG, "Bundling key: \"" + handler.key + "\", value: " + arg + ", required: " + handler.required
                     + " \n in parameter #" + (p + 1)
                     + " for method "
                     + method.getDeclaringClass().getSimpleName()
@@ -145,7 +145,7 @@ final class BundleFactory {
         private void printParseParameter(int p, Box boxAnnotation, boolean required) {
             // annotation.getClass -->class com.sun.proxy.$Proxy 动态代理
             if (AutoBundle.getInstance().debug) {
-                String boxString = "@" + Box.class.getSimpleName() + "(value=" + boxAnnotation.value() + ")";
+                String boxString = "@" + Box.class.getSimpleName() + "(value= \"" + boxAnnotation.value() + "\" )";
                 Log.d(AutoBundle.TAG, "Parse " + boxString + ", required:" + required
                         + " \n in parameter #" + (p + 1)
                         + " for method "
