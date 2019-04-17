@@ -273,6 +273,7 @@ final class BundleFactory {
             return false;
         }
 
+        @Nullable
         private static Box findBoxAnnotation(@Nullable Annotation[] annotations) {
             if (annotations != null) {
                 for (Annotation annotation : annotations) {
