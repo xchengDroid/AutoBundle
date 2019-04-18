@@ -111,8 +111,7 @@ final class BestGuessHandlerFactory extends ParameterHandler.Factory {
             if (Serializable.class.isAssignableFrom(outElementClass)) {
                 return getSerializable();
             }
-        }
-        if (Serializable.class.isAssignableFrom(rawType)) {
+        } else if (Serializable.class.isAssignableFrom(rawType)) {
             return getSerializable();
         }
         return null;
