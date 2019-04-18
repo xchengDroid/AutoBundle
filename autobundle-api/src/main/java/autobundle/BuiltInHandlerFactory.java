@@ -141,7 +141,7 @@ final class BuiltInHandlerFactory extends ParameterHandler.Factory {
                 }
             };
         }
-        //复合数据类型和数组
+        //String数据类型和数组
         if (type == String.class) {
             return new ParameterHandler<String>() {
                 @Override
