@@ -34,13 +34,15 @@ public class AutoBundle {
     final boolean validateEagerly;
     final boolean debug;
     @NonNull
+    List<ParameterHandler.Factory> parameterHandlerFactories;
+    @NonNull
     final List<OnBundleListener> listeners;
 
     public static AutoBundle getInstance() {
         if (instance == null) {
             synchronized (AutoBundle.class) {
                 if (instance == null) {
-                    instance = new AutoBundle(new Builder());
+                    instance = new Builder().build();
                 }
             }
         }
@@ -50,16 +52,12 @@ public class AutoBundle {
     /**
      * Builds an AutoBundle based on the current configuration.
      */
-    private AutoBundle(Builder builder) {
-        this.validateEagerly = builder.validateEagerly;
-        this.debug = builder.debug;
-        List<OnBundleListener> listeners = builder.listeners;
-        if (listeners == null) {
-            //noinspection unchecked
-            this.listeners = Collections.EMPTY_LIST;
-        } else {
-            this.listeners = Collections.unmodifiableList(new ArrayList<>(listeners));
-        }
+    private AutoBundle(boolean validateEagerly, boolean debug,
+                       @NonNull List<ParameterHandler.Factory> parameterHandlerFactories, @NonNull List<OnBundleListener> listeners) {
+        this.validateEagerly = validateEagerly;
+        this.debug = debug;
+        this.listeners = listeners;
+        this.parameterHandlerFactories = parameterHandlerFactories;
     }
 
     public static Builder builder() {
@@ -171,6 +169,7 @@ public class AutoBundle {
         boolean validateEagerly;
         boolean debug;
         List<OnBundleListener> listeners;
+        private List<ParameterHandler.Factory> factories;
 
         private Builder() {
             validateEagerly = false;
@@ -195,12 +194,24 @@ public class AutoBundle {
             return this;
         }
 
-        public Builder addListener(OnBundleListener listener) {
+        public Builder addOnBundleListener(OnBundleListener listener) {
             Utils.checkNotNull(listener, "listener=null");
             if (listeners == null) {
                 listeners = new ArrayList<>();
             }
             listeners.add(listener);
+            return this;
+        }
+
+        /**
+         * Add a parameterHandler factory for serialization and deserialization of objects.
+         */
+        public Builder addParameterHandlerFactory(ParameterHandler.Factory factory) {
+            Utils.checkNotNull(factory, "factory == null");
+            if (factories == null) {
+                factories = new ArrayList<>();
+            }
+            factories.add(factory);
             return this;
         }
 
@@ -210,9 +221,28 @@ public class AutoBundle {
                     throw new IllegalStateException("Default instance already exists." +
                             " It may be only set once before it's used the first time to ensure consistent behavior.");
                 }
-                instance = new AutoBundle(this);
+                instance = build();
                 return instance;
             }
+        }
+
+        private AutoBundle build() {
+            List<OnBundleListener> listeners = this.listeners;
+            if (listeners == null) {
+                listeners = Collections.emptyList();
+            } else {
+                listeners = Collections.unmodifiableList(new ArrayList<>(listeners));
+            }
+
+            // Make a defensive copy of the parameterHandlerFactories.
+            List<ParameterHandler.Factory> parameterHandlerFactories = new ArrayList<>();
+            parameterHandlerFactories.add(BuiltInHandlerFactory.INSTANCE);
+            if (this.factories != null) {
+                parameterHandlerFactories.addAll(this.factories);
+            }
+            parameterHandlerFactories.add(BuiltInHandlerFactory.INSTANCE);
+            return new AutoBundle(validateEagerly, debug, parameterHandlerFactories, listeners);
+
         }
     }
 }
