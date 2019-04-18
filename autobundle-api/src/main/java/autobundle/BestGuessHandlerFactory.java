@@ -15,6 +15,8 @@ import java.util.ArrayList;
  * 猜测数据类型
  */
 final class BestGuessHandlerFactory extends ParameterHandler.Factory {
+    static final BestGuessHandlerFactory INSTANCE = new BestGuessHandlerFactory();
+
     @Nullable
     @Override
     public ParameterHandler<?> get(Type type, Annotation[] parameterAnnotations, Annotation[] methodAnnotations) {

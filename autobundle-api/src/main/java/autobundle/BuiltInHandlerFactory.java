@@ -13,6 +13,8 @@ import java.util.ArrayList;
  * ensures correct behavior when using parameterHandlers that consume all types.
  */
 final class BuiltInHandlerFactory extends ParameterHandler.Factory {
+    static final BestGuessHandlerFactory INSTANCE = new BestGuessHandlerFactory();
+
     @Nullable
     @Override
     public ParameterHandler<?> get(Type type, Annotation[] parameterAnnotations, Annotation[] methodAnnotations) {
