@@ -54,11 +54,11 @@ final class BuiltInHandlerFactory extends ParameterHandler.Factory {
                     bundle.putByte(key, value);
                 }
             };
-        } else if (type == short.class) {
-            return new ParameterHandler<Byte>() {
+        } else if (type == Short.class) {
+            return new ParameterHandler<Short>() {
                 @Override
-                public void apply(Bundle bundle, String key, Byte value, boolean required) {
-                    bundle.putByte(key, value);
+                public void apply(Bundle bundle, String key, Short value, boolean required) {
+                    bundle.putShort(key, value);
                 }
             };
         } else if (type == char.class) {
