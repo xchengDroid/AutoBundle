@@ -20,6 +20,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import autobundle.ParameterHandler.Factory;
+
 /**
  * 创建时间：2019/4/1
  * 编写人： chengxin
@@ -34,7 +36,7 @@ public class AutoBundle {
     final boolean validateEagerly;
     final boolean debug;
     @NonNull
-    List<ParameterHandler.Factory> parameterHandlerFactories;
+    List<Factory> factories;
     @NonNull
     final List<OnBundleListener> listeners;
 
@@ -53,11 +55,11 @@ public class AutoBundle {
      * Builds an AutoBundle based on the current configuration.
      */
     private AutoBundle(boolean validateEagerly, boolean debug,
-                       @NonNull List<ParameterHandler.Factory> parameterHandlerFactories, @NonNull List<OnBundleListener> listeners) {
+                       @NonNull List<Factory> factories, @NonNull List<OnBundleListener> listeners) {
         this.validateEagerly = validateEagerly;
         this.debug = debug;
         this.listeners = listeners;
-        this.parameterHandlerFactories = parameterHandlerFactories;
+        this.factories = factories;
     }
 
     public static Builder builder() {
@@ -169,7 +171,7 @@ public class AutoBundle {
         boolean validateEagerly;
         boolean debug;
         List<OnBundleListener> listeners;
-        private List<ParameterHandler.Factory> factories;
+        private List<Factory> factories;
 
         private Builder() {
             validateEagerly = false;
@@ -206,7 +208,7 @@ public class AutoBundle {
         /**
          * Add a parameterHandler factory for serialization and deserialization of objects.
          */
-        public Builder addParameterHandlerFactory(ParameterHandler.Factory factory) {
+        public Builder addParameterHandlerFactory(Factory factory) {
             Utils.checkNotNull(factory, "factory == null");
             if (factories == null) {
                 factories = new ArrayList<>();
@@ -235,13 +237,13 @@ public class AutoBundle {
             }
 
             // Make a defensive copy of the parameterHandlerFactories.
-            List<ParameterHandler.Factory> parameterHandlerFactories = new ArrayList<>();
-            parameterHandlerFactories.add(BuiltInHandlerFactory.INSTANCE);
+            List<Factory> factories = new ArrayList<>();
+            factories.add(BuiltInHandlerFactory.INSTANCE);
             if (this.factories != null) {
-                parameterHandlerFactories.addAll(this.factories);
+                factories.addAll(this.factories);
             }
-            parameterHandlerFactories.add(BuiltInHandlerFactory.INSTANCE);
-            return new AutoBundle(validateEagerly, debug, parameterHandlerFactories, listeners);
+            factories.add(BestGuessHandlerFactory.INSTANCE);
+            return new AutoBundle(validateEagerly, debug, factories, listeners);
 
         }
     }

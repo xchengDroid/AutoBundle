@@ -1,22 +1,18 @@
 package autobundle;
 
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.util.SparseArray;
 
-import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import autobundle.ParameterHandler.Factory;
 import autobundle.annotation.Box;
 import autobundle.annotation.BundleFlag;
 import autobundle.annotation.Required;
@@ -56,11 +52,14 @@ final class BundleFactory {
     private final ParameterHandler<?>[] parameterHandlers;
     private final Method method;
     private final int bundleFlag;
+    private final KeyRequired[] keyRequires;
 
-    private BundleFactory(Method method, ParameterHandler<?>[] parameterHandlers, int bundleFlag) {
+
+    private BundleFactory(Method method, ParameterHandler<?>[] parameterHandlers, KeyRequired[] keyRequires, int bundleFlag) {
         this.method = method;
         this.parameterHandlers = parameterHandlers;
         this.bundleFlag = bundleFlag;
+        this.keyRequires = keyRequires;
     }
 
     Bundle invoke(Object[] args) {
@@ -74,11 +73,12 @@ final class BundleFactory {
         Bundle bundle = new Bundle();
         for (int p = 0; p < argumentCount; p++) {
             ParameterHandler<Object> handler = handlers[p];
-            handler.apply(bundle, args[p]);
+            KeyRequired keyRequired = keyRequires[p];
+            handler.apply(bundle, keyRequired.key, args[p], keyRequired.required);
             for (OnBundleListener listener : AutoBundle.getInstance().listeners) {
-                listener.onBundling(bundleFlag, handler.key, args[p], handler.required);
+                listener.onBundling(bundleFlag, keyRequired.key, args[p], keyRequired.required);
             }
-            printInvoke(p, handler, args[p]);
+            printInvoke(p, keyRequired, args[p]);
         }
         for (OnBundleListener listener : AutoBundle.getInstance().listeners) {
             listener.onCompleted(bundleFlag, bundle);
@@ -86,9 +86,9 @@ final class BundleFactory {
         return bundle;
     }
 
-    private void printInvoke(int p, ParameterHandler<Object> handler, Object arg) {
+    private void printInvoke(int p, KeyRequired keyRequired, Object arg) {
         if (AutoBundle.getInstance().debug) {
-            Log.d(AutoBundle.TAG, "Bundling key: \"" + handler.key + "\", value: " + arg + ", required: " + handler.required
+            Log.d(AutoBundle.TAG, "Bundling key: \"" + keyRequired.key + "\", value: " + arg + ", required: " + keyRequired.required
                     + " \n in parameter #" + (p + 1)
                     + " for method "
                     + method.getDeclaringClass().getSimpleName()
@@ -110,6 +110,7 @@ final class BundleFactory {
         final Type[] parameterTypes;
         ParameterHandler<?>[] parameterHandlers;
         int bundleFlag = Integer.MIN_VALUE;// by default
+        KeyRequired[] keyRequires;
 
         Builder(Method method) {
             this.method = method;
@@ -126,12 +127,14 @@ final class BundleFactory {
         BundleFactory build() {
             int parameterCount = parameterAnnotationsArray.length;
             parameterHandlers = new ParameterHandler<?>[parameterCount];
+            keyRequires = new KeyRequired[parameterCount];
             for (int p = 0; p < parameterCount; p++) {
                 parameterHandlers[p] = parseParameter(p, parameterTypes[p], parameterAnnotationsArray[p]);
             }
-            return new BundleFactory(method, parameterHandlers, bundleFlag);
+            return new BundleFactory(method, parameterHandlers, keyRequires, bundleFlag);
         }
 
+        @NonNull
         private ParameterHandler<?> parseParameter(
                 int p, Type parameterType, @Nullable Annotation[] annotations) {
             Box boxAnnotation = findBoxAnnotation(annotations);
@@ -139,8 +142,22 @@ final class BundleFactory {
                 throw parameterError(method, p, "@%s annotation not found.", Box.class.getSimpleName());
             }
             boolean required = required(annotations);
+            keyRequires[p] = new KeyRequired(boxAnnotation.value(), required);
             printParseParameter(p, boxAnnotation, required);
-            return parseParameterAnnotation(p, parameterType, boxAnnotation.value(), required);
+            ParameterHandler<?> result = null;
+            List<Factory> factories = AutoBundle.getInstance().factories;
+            for (Factory factory : factories) {
+                result = factory.get(parameterType, annotations, methodAnnotations);
+                if (result != null) {
+                    break;
+                }
+            }
+            if (result == null) {
+                throw parameterError(method, p, "'" + Utils.typeToString(parameterType)
+                        + "' doesn't support.");
+            }
+
+            return result;
         }
 
         private void printParseParameter(int p, Box boxAnnotation, boolean required) {
@@ -155,128 +172,6 @@ final class BundleFactory {
                         + method.getName()
                 );
             }
-        }
-
-        /**
-         * Strict type checking
-         * note: Serializable.class.isAssignableFrom(AnyClass[].class)==true
-         */
-        @NonNull
-        private ParameterHandler<?> parseParameterAnnotation(int p, Type type, String key, boolean required) {
-            //不带泛型
-            if (type instanceof Class<?>) {
-                Class<?> clazz = (Class<?>) type;
-                if (clazz.isPrimitive()) {
-                    return ParameterHandler.getBasic(clazz, key, required);
-                } else if (clazz.isArray()) {
-                    // Must be before Serializable ->任意类型的数组都是Serializable 的子类,所以需要检测元素是否可以序列化
-                    Class<?> elementClass = clazz.getComponentType();
-                    assert elementClass != null;
-                    if (elementClass.isPrimitive()) {
-                        return ParameterHandler.getBasicArray(clazz, key, required);
-                    } else if (String.class.isAssignableFrom(elementClass)) {
-                        return ParameterHandler.getStringArray(key, required);
-                    } else if (Parcelable.class.isAssignableFrom(elementClass)) {
-                        return ParameterHandler.getParcelableArray(key, required);
-                    } else if (CharSequence.class.isAssignableFrom(elementClass)) {
-                        return ParameterHandler.getCharSequenceArray(key, required);
-                    } else {
-                        Class<?> outElementClass = getOutComponentType(clazz);
-                        //任意类型的数组都是Serializable 的子类,所以需要检测元素是否可以序列化
-                        if (Serializable.class.isAssignableFrom(outElementClass)
-                                //基础类型
-                                || outElementClass.isPrimitive()) {
-                            return ParameterHandler.getSerializable(key, required);
-                        }
-                        throw parameterError(method, p, "'" + Utils.typeToString(outElementClass)
-                                + "' must implements Parcelable, CharSequence or Serializable.");
-                    }
-                } else if (String.class.isAssignableFrom(clazz)) {
-                    return ParameterHandler.getString(key, required);
-                } else if (Parcelable.class.isAssignableFrom(clazz)) {
-                    return ParameterHandler.getParcelable(key, required);
-                } else if (CharSequence.class.isAssignableFrom(clazz)) {
-                    return ParameterHandler.getCharSequence(key, required);
-                } else if (ArrayList.class.isAssignableFrom(clazz)) {
-                    throw arrayListTypeError(clazz, p);
-                } else if (SparseArray.class.isAssignableFrom(clazz)) {
-                    throw sparseArrayTypeError(clazz, p);
-                } else if (Serializable.class.isAssignableFrom(clazz)) {
-                    // Must be after Array include bundle.putString
-                    return ParameterHandler.getSerializable(key, required);
-                }
-                throw parameterError(method, p, "'" + Utils.typeToString(clazz)
-                        + "' must implements Parcelable, CharSequence or Serializable.");
-            } else if (type instanceof ParameterizedType) {
-                Class<?> rawType = Utils.getRawType(type);
-                Type elementType = Utils.getParameterUpperBound(0, (ParameterizedType) type);
-                if (elementType instanceof TypeVariable) {
-                    throw parameterError(method, p,
-                            "Parameter type must not include a type variable : %s", elementType);
-                }
-                Class<?> elementClass = Utils.getRawType(elementType);
-                if (ArrayList.class.isAssignableFrom(rawType)) {
-                    if (elementClass == String.class) {
-                        //note:    if  -> ArrayList<String> stringList = new ArrayList<>();
-                        //not allowed  -> bundle.putCharSequenceArrayList("strings",stringList);
-                        //so must use  == ;can not use isAssignableFrom()
-                        return ParameterHandler.getStringArrayList(key, required);
-                    } else if (Parcelable.class.isAssignableFrom(elementClass)) {
-                        //检测elementClass是否 implements Parcelable
-                        return ParameterHandler.getParcelableArrayList(key, required);
-                    } else if (elementClass == Integer.class) {
-                        return ParameterHandler.getIntegerArrayList(key, required);
-                    } else if (elementClass == CharSequence.class) {
-                        return ParameterHandler.getCharSequenceArrayList(key, required);
-                    } else if (Serializable.class.isAssignableFrom(elementClass)) {
-                        //检测elementClass是否 implements Serializable
-                        return ParameterHandler.getSerializable(key, required);
-                    }
-                    throw arrayListTypeError(rawType, p);
-                } else if (SparseArray.class.isAssignableFrom(rawType)) {
-                    if (Parcelable.class.isAssignableFrom(elementClass)) {
-                        return ParameterHandler.getSparseParcelableArray(key, required);
-                    }
-                    throw sparseArrayTypeError(rawType, p);
-                }
-            }
-            throw parameterError(method, p, "'" + Utils.typeToString(type)
-                    + "' doesn't support.");
-        }
-
-        /**
-         * check {@link Bundle#putStringArrayList(String, ArrayList)}
-         * check {@link Bundle#putIntegerArrayList(String, ArrayList)}
-         * check {@link Bundle#putCharSequenceArrayList(String, ArrayList)}
-         * check {@link Bundle#putSparseParcelableArray(String, SparseArray)}
-         */
-        private RuntimeException arrayListTypeError(Class<?> rawParameterType, int p) {
-            StringBuilder typeString = new StringBuilder();
-            String rawTypeName = rawParameterType.getSimpleName();
-
-            typeString.append(rawTypeName).append("<String>, ");
-            typeString.append(rawTypeName).append("<Integer>, ");
-            typeString.append(rawTypeName).append("<CharSequence>, ");
-            typeString.append(rawTypeName).append("<? extends Parcelable>, ");
-            typeString.append(rawTypeName).append("<? extends Serializable>");
-
-            return parameterError(method, p, rawParameterType.getSimpleName()
-                    + " must include generic type \n(e.g., "
-                    + typeString.toString()
-                    + ")");
-        }
-
-        /**
-         * check {@link Bundle#putSparseParcelableArray(String, SparseArray)}
-         */
-        private RuntimeException sparseArrayTypeError(Class<?> rawParameterType, int p) {
-            StringBuilder typeString = new StringBuilder();
-            String rawTypeName = rawParameterType.getSimpleName();
-            typeString.append(rawTypeName).append("<? extends Parcelable>");
-            return parameterError(method, p, rawParameterType.getSimpleName()
-                    + " must include generic type (e.g., "
-                    + typeString.toString()
-                    + ")");
         }
 
         private static boolean required(@Nullable Annotation[] annotations) {
@@ -301,17 +196,15 @@ final class BundleFactory {
             }
             return null;
         }
+    }
 
-        /**
-         * 获取最外层数组类型 如 String[][] 获取String
-         */
-        static Class<?> getOutComponentType(Class<?> clazz) {
-            if (clazz.isArray()) {
-                clazz = clazz.getComponentType();
-                Utils.checkNotNull(clazz, "clazz==null");
-                return getOutComponentType(clazz);
-            }
-            return clazz;
+    static final class KeyRequired {
+        final String key;
+        final boolean required;
+
+        KeyRequired(String key, boolean required) {
+            this.key = key;
+            this.required = required;
         }
     }
 }

@@ -13,7 +13,7 @@ import java.util.ArrayList;
  * ensures correct behavior when using parameterHandlers that consume all types.
  */
 final class BuiltInHandlerFactory extends ParameterHandler.Factory {
-    static final BestGuessHandlerFactory INSTANCE = new BestGuessHandlerFactory();
+    static final BuiltInHandlerFactory INSTANCE = new BuiltInHandlerFactory();
 
     @Nullable
     @Override
