@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import autobundle.AutoBundle;
 
 public class MainActivity extends AppCompatActivity {
-
-
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,28 +21,30 @@ public class MainActivity extends AppCompatActivity {
         String[] strings = new String[10];
         bundle.putCharSequenceArray("1232", strings);
 
-//        ArrayList<? extends CharSequence> stringList0 = new ArrayList<>();
-//        ArrayList<CharSequence> stringList1 = new ArrayList<>();
-//        stringList1.add("");
-//        ArrayList<String> stringList2 = new ArrayList<>();
-//        stringList2.add("");
-//        stringList1.addAll(stringList2);
-//        bundle.putCharSequenceArrayList("strings", stringList1);
+
+        ArrayList<String> stringList1 = new ArrayList<>();
+        //stringList1.add("");
+
+        ArrayList<CharSequence> stringList = new ArrayList<CharSequence>(new ArrayList<String>());
+
+        stringList.addAll(new ArrayList<CharSequence>());
+
+        bundle.putCharSequenceArrayList("strings", stringList);
+        // bundle.putStringArrayList("string2s", stringList1);
 
         bundle.putParcelableArrayList("", new ArrayList<MyList>());
-
     }
 
 
     public void invoke(View view) {
         Bundle bundle = AutoBundle.getInstance()
                 .create(BundleService.class)
+                // .testError(null);
                 .getLogin("JackWharton", "123456");
         //.getInt(1);
         //.getSparseParcelableArray(sparseArray);
         Intent intent = new Intent(this, SecondActivity.class);
         intent.putExtras(bundle);
         startActivity(intent);
-
     }
 }
