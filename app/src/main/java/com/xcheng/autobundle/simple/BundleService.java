@@ -3,7 +3,6 @@ package com.xcheng.autobundle.simple;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.SparseArray;
-import android.view.View;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -35,7 +34,7 @@ public interface BundleService<T extends List<? extends T>> {
                     @Required @Box("password") String password);
 
     @BundleFlag(0)
-    Bundle testError(@Box("password") View password);
+    Bundle testError(@Box("password") String password);
 
     @BundleFlag(1)
     Bundle getInt(@Box("int") int value);
