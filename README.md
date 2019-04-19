@@ -122,7 +122,7 @@ public class MyActivity extends Activity {
 
 #### how to bind fields from bundle
 
-```
+```java
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

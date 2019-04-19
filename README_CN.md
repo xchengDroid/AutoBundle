@@ -111,7 +111,7 @@ public class MyActivity extends Activity {
 
 ##### 如何给属性自动赋值
 
-```
+```java
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
