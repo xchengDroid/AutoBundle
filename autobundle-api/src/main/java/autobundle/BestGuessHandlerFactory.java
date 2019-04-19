@@ -12,7 +12,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 /**
- * 猜测数据类型
+ * best guess the {@link #get(Type, Annotation[], Annotation[]) type} and create parameterHandler
  */
 final class BestGuessHandlerFactory extends ParameterHandler.Factory {
     static final BestGuessHandlerFactory INSTANCE = new BestGuessHandlerFactory();
