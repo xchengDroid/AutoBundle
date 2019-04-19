@@ -40,7 +40,7 @@ In your class which has state from `Bundle`
  AutoBundle.builder().debug(true)//allow print debug message
                 //check all create method before use
                 .validateEagerly(true)
-                .addListener(new OnBundleListener() {
+                .addOnBundleListener(new OnBundleListener() {
                     /**
                      * @param flag  flag is @BundFlag value
                      */
@@ -59,7 +59,7 @@ In your class which has state from `Bundle`
                         }
                     }
                 })
-                .install();
+                .installDefault();
 
 ```
 
@@ -117,7 +117,7 @@ public class MyActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //auto bind the field from bundle
-        AutoBundle.getInstance().bind(this);
+        AutoBundle.getDefault().bind(this);
     }
 ```
 
@@ -163,11 +163,11 @@ public interface BundleService {
 
 ```java
 //second step: you can crate Bundle like retrofit
-   Bundle loginBundle = AutoBundle.getInstance()
+   Bundle loginBundle = AutoBundle.getDefault()
                 .create(BundleService.class)
-                .getLogin("JackWharton","123456");
+                .getDefault("JackWharton","123456");
 
-  Bundle intBundle = AutoBundle.getInstance()
+  Bundle intBundle = AutoBundle.getDefault()
                 .create(BundleService.class)
                 .getInt(1228);
 
@@ -186,8 +186,8 @@ In target class, Call binding method in ``onCreate``.
 
 ```groovy
 dependencies {
-    implementation 'com.xcheng:autobundle-api:1.1.0'
-    annotationProcessor 'com.xcheng:autobundle-compiler:1.1.0'
+    implementation 'com.xcheng:autobundle-api:1.2.3'
+    annotationProcessor 'com.xcheng:autobundle-compiler:1.2.3'
 }
 ```
 
