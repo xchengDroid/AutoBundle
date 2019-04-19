@@ -35,7 +35,7 @@ In your class which has state from `Bundle`
 
 #### 2.  创建单例
 
-```
+```java
  
  AutoBundle.builder().debug(true)//allow print debug message
                 //check all create method before use
