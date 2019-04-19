@@ -1,12 +1,19 @@
-# AutoBundle
+[中文文档](https://github.com/xchengDroid/AutoBundle/blob/master/README_%E4%B8%AD%E6%96%87.md)
+
+# AutoBundle 
 
 
 AutoBundle generates boilerplate code for field binding with ``android.os.Bundle``.
 
 1. Usage
+
 2. Download
+
 3. Thanks
+
 4. License
+
+   
 
 ## Usage
 
