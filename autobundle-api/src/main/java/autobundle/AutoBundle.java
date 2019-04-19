@@ -169,8 +169,6 @@ public final class AutoBundle {
         private List<Factory> factories;
 
         private Builder() {
-            validateEagerly = false;
-            debug = false;
         }
 
         /**
@@ -218,6 +216,7 @@ public final class AutoBundle {
          * @throws IllegalStateException if there's already a default AutoBundle instance in place
          */
         public AutoBundle installDefault() {
+            //like EventBus ImageLoader LocalBroadcastManager android-job#JobManager Android-skin-support#SkinCompatManager
             synchronized (AutoBundle.class) {
                 if (defaultInstance != null) {
                     throw new IllegalStateException("Default instance already exists." +
