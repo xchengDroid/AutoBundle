@@ -1,4 +1,4 @@
-[中文文档](https://github.com/xchengDroid/AutoBundle/blob/master/README_%E4%B8%AD%E6%96%87.md)
+[中文文档](https://github.com/xchengDroid/AutoBundle/blob/master/README_CN.md)
 
 # AutoBundle 
 
