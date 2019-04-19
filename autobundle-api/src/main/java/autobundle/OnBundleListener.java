@@ -1,7 +1,6 @@
 package autobundle;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 /**
@@ -16,5 +15,5 @@ public interface OnBundleListener {
     /**
      * you can replace or add any key value in bundle
      */
-    void onCompleted(int flag, @NonNull Bundle bundle);
+    void onCompleted(int flag, Bundle bundle);
 }
