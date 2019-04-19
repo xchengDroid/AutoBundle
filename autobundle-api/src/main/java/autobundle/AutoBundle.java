@@ -6,7 +6,6 @@ import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
-import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import java.lang.reflect.Constructor;
@@ -15,12 +14,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import autobundle.ParameterHandler.Factory;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
 
 /**
  * 创建时间：2019/4/1
@@ -30,9 +31,9 @@ import autobundle.ParameterHandler.Factory;
 
 public class AutoBundle {
     static final String TAG = "AutoBundle";
+    private final Map<Class<?>, Constructor<? extends IBinder>> BINDINGS = new LinkedHashMap<>();
     private static volatile AutoBundle instance;
-    @VisibleForTesting
-    final Map<Class<?>, Constructor<? extends IBinder>> BINDINGS = new LinkedHashMap<>();
+
     final boolean validateEagerly;
     final boolean debug;
     @NonNull
@@ -168,15 +169,14 @@ public class AutoBundle {
     }
 
     public static final class Builder {
-        boolean validateEagerly;
-        boolean debug;
-        List<OnBundleListener> listeners;
+        private boolean validateEagerly;
+        private boolean debug;
+        private List<OnBundleListener> listeners;
         private List<Factory> factories;
 
         private Builder() {
             validateEagerly = false;
             debug = false;
-            //noinspection unchecked
         }
 
         /**
@@ -228,12 +228,12 @@ public class AutoBundle {
             }
         }
 
-        private AutoBundle build() {
+        public AutoBundle build() {
             List<OnBundleListener> listeners = this.listeners;
             if (listeners == null) {
-                listeners = Collections.emptyList();
+                listeners = emptyList();
             } else {
-                listeners = Collections.unmodifiableList(new ArrayList<>(listeners));
+                listeners = unmodifiableList(new ArrayList<>(listeners));
             }
 
             // Make a defensive copy of the parameterHandlerFactories.
@@ -243,8 +243,7 @@ public class AutoBundle {
                 factories.addAll(this.factories);
             }
             factories.add(BestGuessHandlerFactory.INSTANCE);
-            return new AutoBundle(validateEagerly, debug, factories, listeners);
-
+            return new AutoBundle(validateEagerly, debug, unmodifiableList(factories), listeners);
         }
     }
 }
