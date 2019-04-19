@@ -161,33 +161,31 @@ final class BuiltInHandlerFactory extends ParameterHandler.Factory {
                 }
             };
         }
+        
+        if (type instanceof ParameterizedType) {
+            Class<?> rawType = getRawType(type);
+            Type elementType = getParameterUpperBound(0, (ParameterizedType) type);
 
-
-        if (!(type instanceof ParameterizedType))
-            return null;
-
-        Class<?> rawType = getRawType(type);
-        Type elementType = getParameterUpperBound(0, (ParameterizedType) type);
-
-        //因为String 和 Integer 都是final,确定是可以安全传入的
-        //而 Parcelable 和 CharSequence 可以由子类实现，具有一定的不确定性，Bundle写入Parcel是否会奔溃
-        if (rawType == ArrayList.class) {
-            if (elementType == String.class) {
-                return new ParameterHandler<ArrayList<String>>() {
-                    @Override
-                    public void apply(Bundle bundle, String key, @Nullable ArrayList<String> value, boolean required) {
-                        Utils.checkRequiredValue(key, value, required);
-                        bundle.putStringArrayList(key, value);
-                    }
-                };
-            } else if (elementType == Integer.class) {
-                return new ParameterHandler<ArrayList<Integer>>() {
-                    @Override
-                    public void apply(Bundle bundle, String key, @Nullable ArrayList<Integer> value, boolean required) {
-                        Utils.checkRequiredValue(key, value, required);
-                        bundle.putIntegerArrayList(key, value);
-                    }
-                };
+            //因为String 和 Integer 都是final,确定是可以安全传入的
+            //而 Parcelable 和 CharSequence 可以由子类实现，具有一定的不确定性，Bundle写入Parcel是否会奔溃
+            if (rawType == ArrayList.class) {
+                if (elementType == String.class) {
+                    return new ParameterHandler<ArrayList<String>>() {
+                        @Override
+                        public void apply(Bundle bundle, String key, @Nullable ArrayList<String> value, boolean required) {
+                            Utils.checkRequiredValue(key, value, required);
+                            bundle.putStringArrayList(key, value);
+                        }
+                    };
+                } else if (elementType == Integer.class) {
+                    return new ParameterHandler<ArrayList<Integer>>() {
+                        @Override
+                        public void apply(Bundle bundle, String key, @Nullable ArrayList<Integer> value, boolean required) {
+                            Utils.checkRequiredValue(key, value, required);
+                            bundle.putIntegerArrayList(key, value);
+                        }
+                    };
+                }
             }
         }
         return null;

@@ -75,19 +75,19 @@ final class BundleFactory {
             ParameterHandler<Object> handler = handlers[p];
             KeyRequired keyRequired = keyRequires[p];
             handler.apply(bundle, keyRequired.key, args[p], keyRequired.required);
-            for (OnBundleListener listener : AutoBundle.getInstance().listeners) {
+            for (OnBundleListener listener : AutoBundle.getDefault().listeners) {
                 listener.onBundling(bundleFlag, keyRequired.key, args[p], keyRequired.required);
             }
             printInvoke(p, keyRequired, args[p]);
         }
-        for (OnBundleListener listener : AutoBundle.getInstance().listeners) {
+        for (OnBundleListener listener : AutoBundle.getDefault().listeners) {
             listener.onCompleted(bundleFlag, bundle);
         }
         return bundle;
     }
 
     private void printInvoke(int p, KeyRequired keyRequired, Object arg) {
-        if (AutoBundle.getInstance().debug) {
+        if (AutoBundle.getDefault().debug) {
             Log.d(AutoBundle.TAG, "Bundling key: \"" + keyRequired.key + "\", value: " + arg + ", required: " + keyRequired.required
                     + " \n in parameter #" + (p + 1)
                     + " for method "
@@ -145,7 +145,7 @@ final class BundleFactory {
             keyRequires[p] = new KeyRequired(boxAnnotation.value(), required);
             printParseParameter(p, boxAnnotation, required);
             ParameterHandler<?> result = null;
-            List<Factory> factories = AutoBundle.getInstance().factories;
+            List<Factory> factories = AutoBundle.getDefault().factories;
             for (Factory factory : factories) {
                 result = factory.get(parameterType, annotations, methodAnnotations);
                 if (result != null) {
@@ -162,7 +162,7 @@ final class BundleFactory {
 
         private void printParseParameter(int p, Box boxAnnotation, boolean required) {
             // annotation.getClass -->class com.sun.proxy.$Proxy 动态代理
-            if (AutoBundle.getInstance().debug) {
+            if (AutoBundle.getDefault().debug) {
                 String boxString = "@" + Box.class.getSimpleName() + "(value= \"" + boxAnnotation.value() + "\" )";
                 Log.d(AutoBundle.TAG, "Parse " + boxString + ", required:" + required
                         + " \n in parameter #" + (p + 1)

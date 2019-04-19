@@ -26,37 +26,31 @@ import static java.util.Collections.unmodifiableList;
 /**
  * 创建时间：2019/4/1
  * 编写人： chengxin
- * 功能描述：
+ * 功能描述：to box and unbox bundle
  */
-
-public class AutoBundle {
+public final class AutoBundle {
     static final String TAG = "AutoBundle";
     private final Map<Class<?>, Constructor<? extends IBinder>> BINDINGS = new LinkedHashMap<>();
-    private static volatile AutoBundle instance;
+    private static volatile AutoBundle defaultInstance;
 
     final boolean validateEagerly;
     final boolean debug;
-    @NonNull
-    List<Factory> factories;
-    @NonNull
+    final List<Factory> factories;
     final List<OnBundleListener> listeners;
 
-    public static AutoBundle getInstance() {
-        if (instance == null) {
+    public static AutoBundle getDefault() {
+        if (defaultInstance == null) {
             synchronized (AutoBundle.class) {
-                if (instance == null) {
-                    instance = new Builder().build();
+                if (defaultInstance == null) {
+                    defaultInstance = new Builder().build();
                 }
             }
         }
-        return instance;
+        return defaultInstance;
     }
 
-    /**
-     * Builds an AutoBundle based on the current configuration.
-     */
     private AutoBundle(boolean validateEagerly, boolean debug,
-                       @NonNull List<Factory> factories, @NonNull List<OnBundleListener> listeners) {
+                       List<Factory> factories, List<OnBundleListener> listeners) {
         this.validateEagerly = validateEagerly;
         this.debug = debug;
         this.listeners = listeners;
@@ -217,17 +211,26 @@ public class AutoBundle {
             return this;
         }
 
-        public AutoBundle install() {
+        /**
+         * Installs the default AutoBundle returned by {@link AutoBundle#getDefault()} using this builders' values. Must be
+         * done only once before the first usage of the default AutoBundle.
+         *
+         * @throws IllegalStateException if there's already a default AutoBundle instance in place
+         */
+        public AutoBundle installDefault() {
             synchronized (AutoBundle.class) {
-                if (instance != null) {
+                if (defaultInstance != null) {
                     throw new IllegalStateException("Default instance already exists." +
                             " It may be only set once before it's used the first time to ensure consistent behavior.");
                 }
-                instance = build();
-                return instance;
+                defaultInstance = build();
+                return defaultInstance;
             }
         }
 
+        /**
+         * Builds an AutoBundle based on the current configuration.
+         */
         public AutoBundle build() {
             List<OnBundleListener> listeners = this.listeners;
             if (listeners == null) {
@@ -236,7 +239,7 @@ public class AutoBundle {
                 listeners = unmodifiableList(new ArrayList<>(listeners));
             }
 
-            // Make a defensive copy of the parameterHandlerFactories.
+            // Make a defensive copy of the factories.
             List<Factory> factories = new ArrayList<>();
             factories.add(BuiltInHandlerFactory.INSTANCE);
             if (this.factories != null) {

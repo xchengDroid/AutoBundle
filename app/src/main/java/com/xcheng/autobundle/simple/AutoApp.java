@@ -2,7 +2,6 @@ package com.xcheng.autobundle.simple;
 
 import android.app.Application;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -20,18 +19,18 @@ public class AutoApp extends Application {
         super.onCreate();
         AutoBundle.builder().debug(true)
                 .validateEagerly(true)
-                .addListener(new OnBundleListener() {
+                .addOnBundleListener(new OnBundleListener() {
                     @Override
                     public void onBundling(int flag, String key, @Nullable Object value, boolean required) {
-                        Log.e("print", "key:"+key+" flag:"+flag);
+                        Log.e("AutoBundle", "key:" + key + " flag:" + flag);
                     }
 
                     @Override
-                    public void onCompleted(int flag, @NonNull Bundle bundle) {
-                        Log.e("print", bundle.toString());
+                    public void onCompleted(int flag, Bundle bundle) {
+                        Log.e("AutoBundle", bundle.toString());
                     }
                 })
-                .install();
+                .installDefault();
 
     }
 }

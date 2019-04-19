@@ -3,9 +3,11 @@ package com.xcheng.autobundle.simple;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.SparseArray;
+import android.view.View;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 import autobundle.annotation.Box;
 import autobundle.annotation.BundleFlag;
@@ -16,10 +18,24 @@ import autobundle.annotation.Required;
  * 编写人： chengxin
  * 功能描述：
  */
-public interface BundleService {
+public interface BundleService<T extends List<? extends T>> {
+
+
+    Bundle getPersonInfo(@Box("name") String name,
+                         @Box("id") String id,
+                         @Box("age") int age,
+                         @Box("sex") boolean sex,
+                         @Box("address") String address,
+                         @Box("height") float height,
+                         @Box("weight") float weight);
+
+
     @BundleFlag(0)
     Bundle getLogin(@Required @Box("loginName") String loginName,
                     @Required @Box("password") String password);
+
+    @BundleFlag(0)
+    Bundle testError(@Box("password") View password);
 
     @BundleFlag(1)
     Bundle getInt(@Box("int") int value);
