@@ -28,7 +28,6 @@ import static javax.lang.model.element.Modifier.PUBLIC;
  * 功能描述：
  */
 class BundleSet {
-    private final String METHOD_BIND = "bind";
     private static final ClassName BUNDLE = ClassName.get("android.os", "Bundle");
     private static final ClassName NULLPOINTEREXCEPTION = ClassName.get("java.lang", "NullPointerException");
 
@@ -80,11 +79,11 @@ class BundleSet {
             result.addSuperinterface(IBINDER);
         }
 
-        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(METHOD_BIND)
-                .addAnnotation(UI_THREAD)
-                .addAnnotation(Override.class)
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("bind")
+                //.addAnnotation(UI_THREAD)
                 //Unchecked cast
                 .addAnnotation(AnnotationSpec.builder(SuppressWarnings.class).addMember("value", "$S", "unchecked").build())
+                .addAnnotation(Override.class)
                 .addModifiers(PUBLIC)
                 .addParameter(TypeName.OBJECT, "object")
                 .addParameter(BUNDLE, "bundle");
