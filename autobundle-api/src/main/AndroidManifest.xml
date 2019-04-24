@@ -1,2 +1,2 @@
-<!--至少需要包名 ARouter ButterKnife-->
+<!--至少需要包名 ARouter ButterKnife。改成autobundle 上传bintray会报错，可能是bintray-release版本问题-->
 <manifest package="autobundle.api" />
