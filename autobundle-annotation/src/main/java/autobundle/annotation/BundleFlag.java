@@ -7,8 +7,7 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Bind a method  for the specified value. The field will automatically be cast to the field
- * type.
+ * Mark a method  for the specified value
  */
 @Retention(RUNTIME)
 @Target(METHOD)
