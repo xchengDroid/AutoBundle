@@ -301,8 +301,12 @@ public class AutoBundleProcessor extends AbstractProcessor {
         DeclaredType declaredType = (DeclaredType) typeMirror;
         List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
         if (typeArguments.size() > 0) {
-            //去除泛型的rawType //TypeElement->>ClassSymbol
-            // ==TypeElement#getQualifiedName
+            //去除泛型的rawType
+            //TypeElement->>ClassSymbol
+            //declaredType.asElement()==TypeElement
+            //TypeElement#getQualifiedName==TypeElement.toString()
+            //TypeElement.getSimpleName()==Class.getSimpleName()
+
             if (declaredType.asElement().toString().equals(otherType)) {
                 return true;
             }

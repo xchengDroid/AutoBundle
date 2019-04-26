@@ -157,7 +157,7 @@ class BundleSet {
 
         String packageName = getPackage(enclosingElement).getQualifiedName().toString();
         String className = enclosingElement.getQualifiedName().toString().substring(
-                packageName.length() + 1).replace('.', '$');
+                packageName.length() + 1).replace('.', '$');//处理内部类的情况
         ClassName bindingClassName = ClassName.get(packageName, className + "_BundleBinding");
 
         boolean isFinal = enclosingElement.getModifiers().contains(Modifier.FINAL);
